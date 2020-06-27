@@ -1,8 +1,8 @@
 {
-  "name": "template",
+  "name": "@we-mobius/mobius-js",
   "version": "0.1.0",
-  "description": "Mobius style project templates.",
-  "main": "index.js",
+  "description": "Mobius.js",
+  "main": "./src/index.js",
   "keywords": [
     ""
   ],
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/we-mobius/template.git"
+    "url": "git+https://github.com/we-mobius/mobius-js.git"
   },
   "author": {
     "name": "kongxiangyan",
@@ -81,7 +81,7 @@
       "config": ".cz-config.js"
     }
   },
-  "jsdelivr": "index.js",
+  "jsdelivr": "./release/mobius.js",
   "files": [
     "/release/*",
     "/public/*",
@@ -91,5 +91,11 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
+  },
+  "dependencies": {
+    "@vue/reactivity": "^3.0.0-beta.14",
+    "authing-js-sdk": "^3.20.1",
+    "axios": "^0.19.2",
+    "rxjs": "^6.5.5"
   }
 }
