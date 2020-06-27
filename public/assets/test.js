@@ -1,0 +1,46 @@
+const user = {
+  _id: '5a584dcd32e6510001a8f144',
+  email: '1968198962@qq.com',
+  emailVerified: false,
+  username: '1968198962@qq.com',
+  nickname: '',
+  company: '',
+  photo: 'http://oxacbp94f.bkt.clouddn.com/user-avatars/Fqy_de1Jj5TmngEFiiY1-RsCCDcO',
+  browser: '',
+  registerInClient: '59f86b4832eb28071bdd9214',
+  registerMethod: 'default:username-password',
+  oauth: '',
+  token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7ImVtYWlsIjoiMTk2ODE5ODk2MkBxcS5jb20iLCJpZCI6IjVhNTg0ZGNkMzJlNjUxMDAwMWE4ZjE0NCJ9LCJpYXQiOjE1MTcwMzI1MjV9.Ah0Oii741L_wJHhiE5KtWDgRU1Q3x_fNZBNNM5MhqDc',
+  tokenExpiredAt: 'Sat Jan 27 2018 13:55:25 GMT+0800 (CST)',
+  loginsCount: 0,
+  lastLogin: 'Fri Jan 12 2018 13:55:25 GMT+0800 (CST)',
+  lastIP: null,
+  signedUp: 'Fri Jan 12 2018 13:55:25 GMT+0800 (CST)',
+  blocked: false,
+  isDeleted: false,
+  __typename: 'ExtendUser'
+}
+const login = {
+  _id: '59e5ff4935eebf1913cfe8a1',
+  email: '86700229ww6ss@163.com',
+  emailVerified: false,
+  username: '86700229ww6ss@163.com',
+  nickname: '',
+  company: '',
+  photo: 'http://www.xiaohehe.net/uploads/allimg/150305/304-1503051H136.png',
+  browser: '',
+  token: null,
+  tokenExpiredAt: null,
+  loginsCount: 0,
+  lastLogin: 'Tue Oct 17 2017 21:02:01 GMT+0800 (CST)',
+  lastIP: null,
+  signedUp: 'Tue Oct 17 2017 21:02:01 GMT+0800 (CST)',
+  blocked: false,
+  isDeleted: false,
+  group: {
+    _id: '59e374332023830871913ebd',
+    name: 'default',
+    descriptions: 'default',
+    createdAt: 'Sun Oct 15 2017 22:44:03 GMT+0800 (CST)'
+  }
+}

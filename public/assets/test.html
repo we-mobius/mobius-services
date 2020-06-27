@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.jsdelivr.net/npm/@vue/reactivity"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+  <script>
+    console.info(axios)
+    axios.get('https://httpbin.org/ip')
+      .then(function (response) {
+        console.log(response.data)
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+
+    axios.get('https://f9qgkjyi.minapp-faas.com/prod/main/')
+      .then(function (res) {
+        console.info(res)
+      })
+
+    exports.main = async function mainFn(event) {
+      let response_data = {
+        content: "{\"hello\": \"world\"}",
+        content_type: "application/json",
+        status_code: 200
+      }
+
+      // do something...
+
+      return response_data
+    }
+  </script>
+</body>
+<!-- file:///C:/Users/cigaret/Desktop/GitLocal/mobius-js/public/assets/test.html -->
+
+</html>
