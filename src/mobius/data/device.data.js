@@ -9,7 +9,7 @@ const biu = Biu.scope('inner').biu
 const getDeviceGeo = async () => {
   // regular expressions to extract IP and country values
   const countryCodeExpression = /loc=([\w]{2})/
-  const userIPExpression = /ip=([\w\.]+)/
+  const userIPExpression = /ip=([\w.]+)/
   const res = await biu({
     url: 'https://www.cloudflare.com/cdn-cgi/trace',
     method: 'GET'

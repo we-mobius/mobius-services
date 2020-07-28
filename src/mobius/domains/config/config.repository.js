@@ -1,4 +1,4 @@
-import { perf, get } from '../../utils/index.js'
+import { get } from '../../utils/index.js'
 import { repositoryConfig } from '../../config/index.js'
 import { Observable } from '../../libs/rx.js'
 import {
