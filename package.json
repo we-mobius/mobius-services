@@ -1,6 +1,6 @@
 {
   "name": "@we-mobius/mobius-js",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Mobius.js",
   "main": "./src/index.js",
   "keywords": [
@@ -31,9 +31,9 @@
   },
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/we-mobius/template/issues"
+    "url": "https://github.com/we-mobius/mobius-js/issues"
   },
-  "homepage": "https://github.com/we-mobius/template#readme",
+  "homepage": "https://github.com/we-mobius/mobius-js#readme",
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/plugin-transform-runtime": "^7.10.4",
