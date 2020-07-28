@@ -1,4 +1,3 @@
-import { get } from '../utils/index.js'
 import {
   AUTH,
   isValidAuthType, isEmptyAuthState
@@ -8,14 +7,15 @@ import {
   debounceTime,
   tap, map, filter, shareReplay
 } from '../libs/rx.js'
+import { makeObservableSeletor } from '../common/index.js'
 import {
   registerIn$, registerOut$,
   loginIn$, loginOut$,
   userInfoIn$, userInfoOut$,
   logoutIn$, logoutOut$,
   authStateIn$, authStateOut$
-} from '../domains/auth/auth.repository.js'
-import { changeAuthState, onAuthStateChange } from '../models/auth.model.js'
+} from '../domains/auth/authing.auth.repository.js'
+import { changeAuthState, onAuthStateChange } from '../models/authing.auth.model.js'
 
 /******************************************
  *                  Input
@@ -74,27 +74,16 @@ onAuthStateChange(authState => {
   authStateMutationOut$.next(authState)
 })
 
-const _observablesMap = new Map()
 const observables = {
   init: () => authStateInitOut$,
   hybrid: () => authStateOutShare$,
   empty: () => authStateOutShare$.pipe(
     filter(authState => isEmptyAuthState(authState))
   ),
-  select: path => {
-    let res$ = _observablesMap.get(path)
-    if (!res$) {
-      res$ = authStateOutShare$.pipe(
-        map(authState => get(authState, path)),
-        shareReplay(1)
-      )
-      _observablesMap.set(path, res$)
-    }
-    return res$
-  }
+  select: makeObservableSeletor(authStateOutShare$).select
 }
 
 export {
-  observers as authObservers,
-  observables as authObservables
+  observers as authingAuthObservers,
+  observables as authingAuthObservables
 }

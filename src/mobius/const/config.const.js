@@ -18,13 +18,39 @@ const INIT_CONFIG = {
       }
     },
     auth: {
-      localStorageKeyName: 'jsrt_mobius-auth',
-      authingOptions: {
-        userPoolId: ''
+      authing: {
+        localStorageKeyName: 'jsrt_mobius-authingauth',
+        authingOptions: {
+          userPoolId: ''
+        }
+      },
+      mp: {
+        localStorageKeyName: 'jsrt_mobius-mpauth',
+        requestInfo: {
+          loginUrl: '',
+          getUserInfoUrl: ''
+        }
       }
     },
     theme: {
-      localStorageKeyName: 'jsrt_mobius-theme'
+      localStorageKeyName: 'jsrt_mobius-theme',
+      requestInfo: {
+        getThemeUrl: '',
+        setThemeUrl: ''
+      }
+    },
+    mp_api: {
+      requestInfo: {
+        getAPITicketUrl: ''
+      }
+    },
+    payment: {
+      wepay: {
+        requestInfo: {
+          getWepayParamsUrl: '',
+          getTradeStateUrl: ''
+        }
+      }
     }
   },
   domain: {},
@@ -36,7 +62,9 @@ const INIT_CONFIG = {
       saveTo: 'runtime' // server, local, runtime
     },
     auth: {
-      saveTo: 'runtime' // local, runtime
+      authing: {
+        saveTo: 'runtime' // local, runtime
+      }
     }
   },
   usecase: {},

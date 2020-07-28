@@ -6,6 +6,7 @@ const defaultConfigProxy = reactive(defaultConfig)
 
 const changeConfig = configChanges => {
   console.log(`[${perf.now}][ConfigModel] changeConfig: runtimeConfig changes received...`, configChanges)
+  configChanges = configChanges || {}
   hardDeepMerge(defaultConfigProxy, configChanges)
 }
 
