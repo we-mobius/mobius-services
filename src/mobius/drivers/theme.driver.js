@@ -72,10 +72,10 @@ const lightSourceOutShare$ = merge(lightSourceInitOut$, lightSourceMutationOut$)
   shareReplay(1)
 )
 
-const outputObservable$ = merge(modeOutShare$, lightSourceOutShare$)
-
 const observables = {
-  hybrid: () => outputObservable$,
+  hybrid: () => merge(modeOutShare$, lightSourceOutShare$).pipe(
+    shareReplay(1)
+  ),
   select: type => {
     if (!isValidThemeType(type)) throw Error(`传入的 type 值无效，传入值为 ${type}`)
     let res$

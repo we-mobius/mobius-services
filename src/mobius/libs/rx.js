@@ -1,6 +1,6 @@
 export {
   Observable, Subject, BehaviorSubject,
-  merge
+  merge, zip, combineLatest
 } from 'rxjs'
 export {
   // creation
@@ -12,7 +12,7 @@ export {
   // Error handling
 
   // filtering
-  debounceTime, filter, take,
+  debounceTime, filter, take, distinctUntilChanged,
   // multicasting
   shareReplay,
   // transformation

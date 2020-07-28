@@ -4,10 +4,13 @@
  * - LightSource
  */
 
-import { get } from '../utils/index.js'
+import { perf, get, throttle, packing } from '../utils/index.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { THEME, isValidThemeMode, isValidThemeLightSource } from '../const/index.js'
 import { dataConfig } from '../config/index.js'
+import { Biu } from '../libs/biu.js'
+
+const biu = Biu.scope('inner').biu
 
 // keep config fresh
 const localStorageKeyName = () => get(dataConfig, 'theme.localStorageKeyName')
@@ -16,22 +19,86 @@ const _setThemeToLocal = theme => {
   setDataToLocalStorage(localStorageKeyName(), theme)
 }
 
+const getThemeUrl = () => get(dataConfig, 'theme.requestInfo.getThemeUrl')
+const setThemeUrl = () => get(dataConfig, 'theme.requestInfo.setThemeUrl')
+const getThemeFromServer = async () => {
+  console.log(`[${perf.now}][ThemeData] getThemeFromServer: send a request...`)
+  let res
+  const url = getThemeUrl()
+  if (url === '') {
+    res = null
+  } else {
+    res = await biu({
+      url: url,
+      method: 'POST',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        action: 'get'
+      }
+    })
+      .then(response => {
+        return response.data.status === 'success' ? response.data.data.theme : null
+      })
+      .catch(e => null)
+  }
+  return res
+}
+const getThemeFromServerThrottled = throttle(getThemeFromServer)
+const setThemeToServer = async changes => {
+  console.log(`[${perf.now}][ThemeData] setThemeToServer: send a request...`, changes)
+  let res
+  const url = setThemeUrl()
+  if (url === '') {
+    res = null
+  } else {
+    res = await biu({
+      url: url,
+      method: 'POST',
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        action: 'set',
+        payload: {
+          theme: {
+            ...changes
+          }
+        }
+      }
+    })
+      .then(response => {
+        return response.data
+      })
+      .catch(e => null)
+  }
+
+  return res
+}
+const setThemeToServerPacked = packing(setThemeToServer, 500)
 /*********************************************************
  *                          Mode
  * - 用户设置的主题 → LocalStorage
- * - 从 CSS 中获取当前浏览器的主题 → 根元素 --mode 样式属性
  * - 获取开发者在 DOM 中设置的主题 → 根元素 data-theme
+ * - 从 CSS 中获取当前浏览器的主题 → 根元素 --mode 样式属性
  * - 使用默认主题 → Light
  *********************************************************/
 
-// TODO: 从服务端获取
-const getModeFromServer = () => {
-  return false
+const getModeFromServer = async () => {
+  const theme = await getThemeFromServerThrottled()
+  return theme ? theme.mode : ''
 }
-const setModeToServer = (mode) => {}
+const setModeToServer = async mode => {
+  return setThemeToServerPacked({
+    mode: mode
+  })
+}
 const getModeFromLocal = () => {
   const mode = _getThemeFromLocal().mode
-  return isValidThemeMode(mode) ? mode : false
+  return isValidThemeMode(mode) ? mode : ''
 }
 const setModeToLocal = mode => {
   if (isValidThemeMode(mode)) {
@@ -40,14 +107,14 @@ const setModeToLocal = mode => {
     _setThemeToLocal(theme)
   }
 }
+const getModeFromDOM = () => {
+  const mode = document.documentElement.dataset.mode
+  return isValidThemeMode(mode) ? mode : ''
+}
 const getModeFromCSS = () => {
   const mode = getComputedStyle(document.documentElement)
     .getPropertyValue('--mode').replace(/["' ]/g, '')
-  return isValidThemeMode(mode) ? mode : false
-}
-const getModeFromDOM = () => {
-  const mode = document.documentElement.dataset.mode
-  return isValidThemeMode(mode) ? mode : false
+  return isValidThemeMode(mode) ? mode : ''
 }
 const getModeFromDefault = () => THEME.MODE.DEFAULT
 
@@ -58,16 +125,20 @@ const getModeFromDefault = () => THEME.MODE.DEFAULT
  * - 使用默认光源 → 根据时间调整
  ********************************************************/
 
-// TODO: 从服务端获取
-const getLightSourceFromServer = () => {
-  return false
+const getLightSourceFromServer = async () => {
+  const theme = await getThemeFromServerThrottled()
+  return theme ? theme.lightSource : ''
 }
-const setLightSourceToServer = (lightSource) => {}
+const setLightSourceToServer = async lightSource => {
+  return setThemeToServerPacked({
+    lightSource: lightSource
+  })
+}
 const getLightSourceFromLocal = () => {
   const lightSource = _getThemeFromLocal().lightSource
-  return isValidThemeLightSource(lightSource) ? lightSource : false
+  return isValidThemeLightSource(lightSource) ? lightSource : ''
 }
-const setLightSourceToLocal = (lightSource) => {
+const setLightSourceToLocal = lightSource => {
   if (isValidThemeLightSource(lightSource)) {
     const theme = _getThemeFromLocal()
     theme.lightSource = lightSource
@@ -76,7 +147,7 @@ const setLightSourceToLocal = (lightSource) => {
 }
 const getLightSourceFromDOM = () => {
   const lightSource = document.documentElement.dataset.source
-  return isValidThemeLightSource(lightSource) ? lightSource : false
+  return isValidThemeLightSource(lightSource) ? lightSource : ''
 }
 const getLightSourceFromDefault = () => {
   const hour = new Date().getHours()

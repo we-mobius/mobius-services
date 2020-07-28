@@ -35,9 +35,13 @@
   },
   "homepage": "https://github.com/we-mobius/template#readme",
   "devDependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
     "@commitlint/cli": "^8.3.5",
     "@fullhuman/postcss-purgecss": "^2.1.2",
     "autoprefixer": "^9.7.6",
+    "babel-loader": "^8.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "commitizen": "^4.0.5",
     "commitlint-config-cz": "^0.13.1",
@@ -68,6 +72,7 @@
     "style-loader": "^1.2.1",
     "tailwindcss": "^1.4.4",
     "url-loader": "^4.1.0",
+    "vconsole": "^3.3.4",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3",
@@ -93,6 +98,7 @@
     "access": "public"
   },
   "dependencies": {
+    "@babel/runtime": "^7.10.4",
     "@vue/reactivity": "^3.0.0-beta.14",
     "authing-js-sdk": "^3.20.1",
     "axios": "^0.19.2",

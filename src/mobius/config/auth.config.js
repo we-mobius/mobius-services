@@ -1,3 +1,4 @@
-const authState = {}
+const authingAuthState = {}
+const mpAuthState = {}
 
-export { authState }
+export { authingAuthState, mpAuthState }

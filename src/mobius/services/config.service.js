@@ -18,6 +18,7 @@ const initConfig = configChanges => {
       console.log(`[${perf.now}][ConfigService] initConfig: subscribe to configObservables.init()...`)
       configObservables.init().subscribe(config => {
         console.log(`[${perf.now}][ConfigService] initConfig: configObservables.init() received initial config...`, config)
+        console.log(`[${perf.now}][ConfigService] initConfig: feed initial config back to ConfigObserver...`, config)
         makeConfigObserver().next(config)
         resolve('done')
       })
@@ -43,4 +44,4 @@ const initConfig = configChanges => {
 
 const getConfig = path => get(defaultConfig, path)
 
-export { makeConfigObserver, configObservables, initConfig, getConfig }
+export { initConfig, makeConfigObserver, configObservables, getConfig }

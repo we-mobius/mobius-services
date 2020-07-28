@@ -10,7 +10,9 @@
 import { get, deepCopy } from '../utils/index.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { dataConfig, defaultConfig } from '../config/index.js'
-import { request } from '../libs/axios.js'
+import { Biu } from '../libs/biu.js'
+
+const biu = Biu.scope('inner').biu
 
 // keep config fresh
 const localStorageKeyName = () => get(dataConfig, 'config.localStorageKeyName')
@@ -25,9 +27,9 @@ const getConfigFromServer = async () => {
   let res
   const url = getConfigUrl()
   if (url === '') {
-    res = false
+    res = null
   } else {
-    res = await request({
+    res = await biu({
       url: url,
       method: 'POST',
       withCredentials: true,
@@ -37,20 +39,25 @@ const getConfigFromServer = async () => {
       data: {
         action: 'get'
       }
-    }).then(response => {
-      console.info(response)
     })
+      .then(response => {
+        return response.data.status === 'success' ? response.data.data.config : null
+      })
+      .catch(e => {
+        console.error(e)
+        return null
+      })
   }
   return res
 }
-const setConfigToServer = async (config) => {
+const setConfigToServer = async config => {
   let res
   const url = setConfigUrl()
 
   if (url === '') {
-    res = false
+    res = null
   } else {
-    res = await request({
+    res = await biu({
       url: url,
       method: 'POST',
       withCredentials: true,
@@ -63,21 +70,26 @@ const setConfigToServer = async (config) => {
           config: config
         }
       }
-    }).then(response => {
-      console.info(response)
     })
+      .then(response => {
+        return response.data
+      })
+      .catch(e => {
+        console.error(e)
+        return null
+      })
   }
 
   return res
 }
 
 const getConfigFromLocal = () => _getConfigFromLocal()
-const setConfigToLocal = (config) => {
+const setConfigToLocal = config => {
   _setConfigToLocal(config)
 }
 
 const getConfigFromDefault = () => deepCopy(defaultConfig)
-const setConfigToDefault = (config) => {
+const setConfigToDefault = config => {
   // NOTE: ConfigModel handles `setToConfig` automatically through Reactivity
 }
 

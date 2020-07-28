@@ -1,4 +1,4 @@
-import { get } from '../../utils/index.js'
+import { perf, get } from '../../utils/index.js'
 import { repositoryConfig } from '../../config/index.js'
 import { Observable } from '../../libs/rx.js'
 import {
@@ -30,6 +30,7 @@ const getConfig = async () => {
 
   if (isSaveToServer()) {
     config = await getConfigFromServer()
+    console.warn(config)
     config && setConfigToLocal(config)
     config = getConfigFromLocal() ? getConfigFromLocal()
       : getConfigFromDefault()
@@ -43,7 +44,7 @@ const getConfig = async () => {
 const setConfig = async (config) => {
   if (isSaveToServer()) {
     await setConfigToServer(config)
-    setConfigToLocal(await getConfigFromServer())
+    setConfigToLocal(await getConfigFromServer() || config)
   }
   if (isSaveToLocal()) {
     setConfigToLocal(config)
@@ -58,8 +59,8 @@ const setConfig = async (config) => {
 const configOut$ = new Observable(observer => {
   getConfig().then(config => {
     observer.next(config)
+    observer.complete()
   })
-  // observer.complete()
 })
 const configIn$ = {
   next: (config) => {

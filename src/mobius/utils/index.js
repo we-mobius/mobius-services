@@ -1,14 +1,19 @@
 export * from './debug.js'
+export * from './string.js'
+
+const isDefined = variable => typeof variable !== 'undefined'
 
 const isString = str => Object.prototype.toString.call(str) === '[object String]'
 const isObject = obj => obj && typeof obj === 'object'
 const isArray = arr => Array.isArray(arr)
 const isPromise = obj => obj && Object.prototype.toString.call(obj) === '[object Promise]'
 const isFunction = fn => fn && typeof fn === 'function'
-const isDate = date => date && Object.prototype.toString.call(date) === '[object Date]'
+const isDate = date => date && Object.prototype.toString.call(new Date(date)) === '[object Date]' && !!new Date(date).getTime()
 const isAsyncFn = fn => fn && Object.prototype.toString.call(fn) === '[object AsyncFunction]'
 const isEmptyObj = obj => isObject(obj) && Object.keys(obj).length === 0
-const isOutDated = date => isDate(new Date(date)) && new Date(date) < new Date()
+const isOutDated = date => isDate(date) && new Date(date).getTime() < new Date().getTime()
+
+const asIs = sth => sth
 
 // @refer to: https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_get
 const get = (obj, path, defaultValue = undefined) => {
@@ -51,7 +56,7 @@ const deepCopy = (obj) => {
 
 const hardDeepMerge = (target, source) => {
   if (!isObject(target) || !isObject(source)) {
-    return source
+    return target
   }
 
   Object.keys(source).forEach(key => {
@@ -72,7 +77,7 @@ const hardDeepMerge = (target, source) => {
 
 const smartDeepMerge = (target, source) => {
   if (!isObject(target) || !isObject(source)) {
-    return source
+    return target
   }
 
   Object.keys(source).forEach(key => {
@@ -91,11 +96,93 @@ const smartDeepMerge = (target, source) => {
   return target
 }
 
+const debounce = (fn, ms) => {
+  let timer
+  let waiting = []
+  return () => {
+    clearTimeout(timer)
+    timer = setTimeout(async () => {
+      const res = await fn()
+      waiting.forEach(fn => {
+        fn(res)
+      })
+      waiting = []
+    }, ms)
+    return new Promise(resolve => {
+      waiting.push(resolve)
+    })
+  }
+}
+
+const throttle = (fn) => {
+  let isCalling = false
+  let waiting = []
+  return () => {
+    if (!isCalling) {
+      isCalling = true
+      Promise.resolve(fn()).then(res => {
+        waiting.forEach(waitFn => {
+          waitFn(res)
+        })
+        waiting = []
+        isCalling = false
+      })
+    }
+    return new Promise(resolve => {
+      waiting.push(resolve)
+    })
+  }
+}
+
+const throttleTime = (fn, ms) => {
+  let isCalling = false
+  let waiting = []
+  return () => {
+    if (!isCalling) {
+      isCalling = true
+      Promise.resolve(fn()).then(res => {
+        waiting.forEach(waitFn => {
+          waitFn(res)
+        })
+        waiting = []
+      })
+      setTimeout(() => {
+        isCalling = false
+      }, ms)
+    }
+    return new Promise(resolve => {
+      waiting.push(resolve)
+    })
+  }
+}
+
+const packing = (fn, range) => {
+  let timer
+  let waiting = []
+  let data = {}
+  return (oData) => {
+    clearTimeout(timer)
+    data = hardDeepMerge(data, oData)
+    timer = setTimeout(async () => {
+      const res = await fn(data)
+      waiting.forEach(waitFn => {
+        waitFn(res)
+      })
+      waiting = []
+    }, range)
+    return new Promise(resolve => {
+      waiting.push(resolve)
+    })
+  }
+}
+
 export {
+  isDefined,
   isString, isObject, isArray, isPromise, isFunction, isDate,
   isEmptyObj, isAsyncFn, isOutDated,
   deepCopy, deepCopyViaJSON,
   emptifyObj,
-  get,
-  hardDeepMerge, smartDeepMerge
+  asIs, get,
+  hardDeepMerge, smartDeepMerge,
+  debounce, throttle, throttleTime, packing
 }

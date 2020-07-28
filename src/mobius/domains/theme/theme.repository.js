@@ -17,41 +17,41 @@ import {
 } from '../../data/theme.data.js'
 
 const saveTo = () => get(repositoryConfig, 'theme.saveTo')
-const isSaveToServer = () => saveTo() === 'sever'
+const isSaveToServer = () => saveTo() === 'server'
 const isSaveToLocal = () => saveTo() === 'local'
 const isSaveToRuntime = () => saveTo() === 'runtime'
 
-// saveToServer: Server ?-> Local ? CSS ? DOM ? Default
-// saveToLocal: Local ? CSS ? DOM ? Default
-// saveToRuntime: CSS ? DOM ? Default
-const getMode = () => {
+// saveToServer: Server ?-> Local ? DOM ? CSS ? Default
+// saveToLocal: Local ? DOM ? CSS ? Default
+// saveToRuntime: DOM ? CSS ? Default
+const getMode = async () => {
   let mode
 
   if (isSaveToRuntime()) {
-    mode = getModeFromCSS() ? getModeFromCSS()
-      : getModeFromDOM() ? getModeFromDOM()
+    mode = getModeFromDOM() ? getModeFromDOM()
+      : getModeFromCSS() ? getModeFromCSS()
         : getModeFromDefault()
   }
 
   if (isSaveToLocal()) {
     mode = getModeFromLocal() ? getModeFromLocal()
-      : getModeFromCSS() ? getModeFromCSS()
-        : getModeFromDOM() ? getModeFromDOM()
+      : getModeFromDOM() ? getModeFromDOM()
+        : getModeFromCSS() ? getModeFromCSS()
           : getModeFromDefault()
   }
 
   if (isSaveToServer()) {
-    mode = getModeFromServer()
+    mode = await getModeFromServer()
     mode && setModeToLocal(mode)
     mode = getModeFromLocal() ? getModeFromLocal()
-      : getModeFromCSS() ? getModeFromCSS()
-        : getModeFromDOM() ? getModeFromDOM()
+      : getModeFromDOM() ? getModeFromDOM()
+        : getModeFromCSS() ? getModeFromCSS()
           : getModeFromDefault()
   }
 
   return mode
 }
-const getLightSource = () => {
+const getLightSource = async () => {
   let lightSource
 
   if (isSaveToRuntime()) {
@@ -66,8 +66,8 @@ const getLightSource = () => {
   }
 
   if (isSaveToServer()) {
-    lightSource = getLightSourceFromLocal()
-    lightSource || setLightSourceToLocal(getLightSourceFromServer())
+    lightSource = getLightSourceFromServer()
+    lightSource && setLightSourceToLocal(lightSource)
     lightSource = getLightSourceFromLocal() ? getLightSourceFromLocal()
       : getLightSourceFromDOM() ? getLightSourceFromDOM()
         : getLightSourceFromDefault()
@@ -78,10 +78,10 @@ const getLightSource = () => {
 // saveToServer: Server ?-> Local
 // saveToLocal: Local
 // saveToRuntime: nowhere
-const setMode = mode => {
+const setMode = async mode => {
   if (isSaveToServer()) {
     setModeToServer(mode)
-    setModeToLocal(getModeFromServer())
+    setModeToLocal(mode)
   }
   if (isSaveToLocal()) {
     setModeToLocal(mode)
@@ -90,10 +90,10 @@ const setMode = mode => {
     // do nothing
   }
 }
-const setLightSource = lightSource => {
+const setLightSource = async lightSource => {
   if (isSaveToServer()) {
     setLightSourceToServer(lightSource)
-    setLightSourceToLocal(getLightSourceFromServer())
+    setLightSourceToLocal(lightSource)
   }
   if (isSaveToLocal()) {
     setLightSourceToLocal(lightSource)
@@ -104,25 +104,27 @@ const setLightSource = lightSource => {
 }
 
 const modeOut$ = new Observable(observer => {
-  const mode = getMode()
-  observer.next(makeThemeModeCurrency(mode))
-  // observer.complete()
+  getMode().then(mode => {
+    observer.next(makeThemeModeCurrency(mode))
+    observer.complete()
+  })
 })
 const lightSourceOut$ = new Observable(observer => {
-  const lightSource = getLightSource()
-  observer.next(makeThemeLightSourceCurrency(lightSource))
-  // observer.complete()
+  getLightSource().then(lightSource => {
+    observer.next(makeThemeLightSourceCurrency(lightSource))
+    observer.complete()
+  })
 })
 
 const modeIn$ = {
-  next: (modeCurrency) => {
+  next: modeCurrency => {
     setMode(modeCurrency.value)
   },
   error: () => {},
   complete: () => {}
 }
 const lightSourceIn$ = {
-  next: (lightSourceCurrency) => {
+  next: lightSourceCurrency => {
     setLightSource(lightSourceCurrency.value)
   },
   error: () => {},

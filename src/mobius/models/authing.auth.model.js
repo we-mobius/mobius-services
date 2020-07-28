@@ -1,8 +1,8 @@
 import { hardDeepMerge, deepCopy, isEmptyObj, emptifyObj } from '../utils/index.js'
-import { authState } from '../config/index.js'
+import { authingAuthState } from '../config/index.js'
 import { reactive, effect } from '../libs/reactivity.js'
 
-const authStateProxy = reactive(authState)
+const authStateProxy = reactive(authingAuthState)
 
 const changeAuthState = changes => {
   if (isEmptyObj(changes)) {

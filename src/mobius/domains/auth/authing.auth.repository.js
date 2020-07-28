@@ -1,13 +1,13 @@
 import { get } from '../../utils/index.js'
-import { repositoryConfig, authState } from '../../config/index.js'
+import { repositoryConfig, authingAuthState } from '../../config/index.js'
 import { Subject, Observable } from '../../libs/rx.js'
 import {
   getAuthStateFromLocal, setAuthStateToLocal,
   register, login, userInfo, logout
-} from '../../data/auth.data.js'
+} from '../../data/authing.auth.data.js'
 
 // keep config fresh
-const saveTo = () => get(repositoryConfig, 'auth.saveTo')
+const saveTo = () => get(repositoryConfig, 'auth.authing.saveTo')
 const isSaveToLocal = () => saveTo() === 'local'
 const isSaveToRuntime = () => saveTo() === 'runtime'
 
@@ -17,7 +17,7 @@ const getAuthState = () => {
     _authState = getAuthStateFromLocal()
   }
   if (isSaveToRuntime()) {
-    _authState = authState
+    _authState = authingAuthState
   }
   return _authState
 }
@@ -56,7 +56,7 @@ const loginOut$ = new Subject()
 const userInfoIn$ = {
   next: () => {
     return userInfo().then(userInfo => {
-      userInfoOut$.next(getAuthState())
+      userInfoOut$.next(userInfo)
     })
   },
   error: () => {},
@@ -68,7 +68,7 @@ const logoutIn$ = {
   next: () => {
     return logout().then(() => {
       logoutOut$.next({})
-    }).catch((err) => {
+    }).catch(err => {
       console.info(err)
       logoutOut$.next({})
     })
