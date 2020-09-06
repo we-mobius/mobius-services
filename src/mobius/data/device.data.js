@@ -12,7 +12,8 @@ const getDeviceGeo = async () => {
   const userIPExpression = /ip=([\w.]+)/
   const res = await biu({
     url: 'https://www.cloudflare.com/cdn-cgi/trace',
-    method: 'GET'
+    method: 'GET',
+    withCredentials: false
   })
     .then(response => {
       try {

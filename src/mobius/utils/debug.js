@@ -4,4 +4,8 @@ const perf = {
   }
 }
 
-export { perf }
+const stdLineLog = (file, func, description) => {
+  return `[${perf.now}][${file}] ${func}: ${description}...`
+}
+
+export { perf, stdLineLog }

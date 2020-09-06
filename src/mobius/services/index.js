@@ -1,10 +1,12 @@
 export * from './request.service.js'
+export * from './reactivity.service.js'
 export * from './auth.service.js'
 export * from './config.service.js'
 export * from './theme.service.js'
 export * from './device.service.js'
 export * from './mp_api.service.js'
 export * from './payment.service.js'
+export * from './router.service.js'
 export * from './console.service.js'
 
 export * from './mobius.service.js'

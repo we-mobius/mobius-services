@@ -1,21 +1,19 @@
-import { perf, isObject } from '../utils/index.js'
-import { axios, Biu, makeCustomBiutor } from '../libs/biu.js'
+import { perf } from '../utils/index.js'
+import { Biu, modifyBiuConfig } from '../libs/biu.js'
 import { authingAuthObservables as authObservables } from '../drivers/authing.auth.driver.js'
 
+export * from '../libs/biu.js'
+
 let _token = ''
-const innerBiutor = Biu.scope('inner')
-innerBiutor.addConfigInjector(config => {
-  const data = config.data
-  if (!data || !isObject(data)) {
-    return config
-  }
-  if (_token) {
-    data.token = _token
-  }
-  return config
+
+export const withToken = modifyBiuConfig({
+  data: { token: _token }
 })
 
-const initRequest = ({
+const innerBiutor = Biu.scope('inner')
+innerBiutor.addConfigModifier(withToken)
+
+export const initRequest = ({
   withToken = true
 } = { withToken: true }) => {
   if (withToken) {
@@ -24,10 +22,4 @@ const initRequest = ({
       console.log(`[${perf.now}][RequestService] initRequest: auth token received...`, _token)
     })
   }
-}
-
-export {
-  axios,
-  Biu, makeCustomBiutor,
-  initRequest
 }

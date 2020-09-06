@@ -68,12 +68,12 @@ const observables = {
     if (!res) throw Error('Expected type of deviceObservables: geo|screen ...')
     return res
   },
-  chunck: () => deviceInfoOutShareChunked$,
+  chunk: () => deviceInfoOutShareChunked$,
   select: path => {
     let res$ = _observablesMap.get(path)
     if (!res$) {
       res$ = deviceInfoOutShareChunked$.pipe(
-        map(deviceInfoChunck => get(deviceInfoChunck, path)),
+        map(deviceInfoChunk => get(deviceInfoChunk, path)),
         shareReplay(1)
       )
       _observablesMap.set(path, res$)

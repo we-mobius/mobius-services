@@ -61,7 +61,7 @@ const initMpAuth = ({
   if (preLogin && !scope) {
     console.warn('[MpAuthService][initMpAuth] preLogin is set but no scope provided, %csnsapi_base%c will be used automatically', 'color: #f00', 'color: #000')
   }
-  if (preGetUserInfo && scope === 'snsapi_base') {
+  if (preGetUserInfo && scope !== 'snsapi_userinfo') {
     throw Error('[MpAuthService][initMpAuth] preGetUserInfo expects scope to be snsapi_userinfo')
   }
   console.log(`[${perf.now}][MpAuthService] initMpAuth: subscribe to 'auth_state' type of mpAuthObservables...`)
@@ -83,7 +83,7 @@ const initMpAuth = ({
       }
     } else {
       console.log(`[${perf.now}][MpAuthService] initMpAuth: preGetUserInfo, current auth scope...`, authState.scope)
-      if (preGetUserInfo && authState.scope === 'snsapi_userinfo') {
+      if (preGetUserInfo && authState.scope.indexOf('snsapi_userinfo') > -1) {
         console.log(`[${perf.now}][MpAuthService] initMpAuth: authState received valid, preGetUserInfo...`, authState)
         mpAuthObservers.select(AUTH.TYPE.USERINFO).next({})
       }

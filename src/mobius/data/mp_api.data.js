@@ -1,6 +1,7 @@
 import { perf, get, throttle } from '../utils/index.js'
 import { Biu } from '../libs/biu.js'
 import { dataConfig } from '../config/index.js'
+import { MPAPI_REQUEST_TYPES } from '../const/mp_api.const.js'
 
 const biu = Biu.scope('inner').biu
 
@@ -9,7 +10,7 @@ const getAPITicketUrl = () => get(dataConfig, 'mp_api.requestInfo.getAPITicketUr
 const getJsAPITicket = async () => {
   console.log(`[${perf.now}][MpAPIDate] getJsAPITicket: send a request...`)
   let res
-  const type = 'js_api_ticket'
+  const type = MPAPI_REQUEST_TYPES.getJsAPITicket
   const url = getAPITicketUrl()
   if (url === '') {
     res = null
@@ -42,7 +43,7 @@ const getJsAPITicketThrottled = throttle(getJsAPITicket)
 const getCardAPITicket = async () => {
   console.log(`[${perf.now}][MpAPIDate] getCardAPITicket: send a request...`)
   let res
-  const type = 'card_api_ticket'
+  const type = MPAPI_REQUEST_TYPES.getCardAPITicket
   const url = getAPITicketUrl()
   if (url === '') {
     res = null

@@ -2,6 +2,10 @@ import { perf, get, isFunction, isAsyncFn } from '../utils/index.js'
 import { commonConfig as config } from '../config/index.js'
 import { map, shareReplay } from '../libs/rx.js'
 
+export * from './repository.common.js'
+export * from './driver.common.js'
+export * from './scope.common.js'
+
 const _fingerPrint = config.baseFingerPrint.split('')
 
 const _getFingerPrint = () => {
@@ -9,8 +13,8 @@ const _getFingerPrint = () => {
   return _fingerPrint.join('')
 }
 
-const makeUniqueId = init => {
-  return `${init}-${new Date().getTime()}-${_getFingerPrint()}`
+const makeUniqueId = seed => {
+  return `${seed}--${+new Date()}-${_getFingerPrint()}`
 }
 
 /***************************************
@@ -54,6 +58,12 @@ const adaptMultiPlatformAwait = async ({
   } else {
     defaultFn && await defaultFn()
   }
+}
+
+const getLinkElement = href => {
+  const a = document.createElement('a')
+  a.href = href || window.location.href
+  return a
 }
 
 /***************************************
@@ -110,7 +120,7 @@ const whenAllLoaded = (todoFn) => {
 
 export {
   makeUniqueId,
-  isWXMINA, isWeb, adaptMultiPlatform, adaptMultiPlatformAwait,
+  isWXMINA, isWeb, adaptMultiPlatform, adaptMultiPlatformAwait, getLinkElement,
   getDataFromLocalStorage, setDataToLocalStorage, makeLocalStorageHandlers,
   makeObservableSeletor,
   whenContentLoaded, whenAllLoaded

@@ -9,8 +9,8 @@ const initDevice = ({
   sync = false
 } = { sync: false }) => {
   let promise
-
-  console.log(`[${perf.now}][DeviceService] initDevice(${sync ? 'sync' : ''}): subscribe to deviceObservables.init()...`)
+  console.log(`[${perf.now}][DeviceService] initDevice(${sync ? 'sync' : ''}): subscribe to deviceObservables.hybrid()...`)
+  deviceObservables.hybrid().subscribe(() => {})
   if (!sync) {
     deviceObservables.trigger('screen').subscribe(screenInfo => {
       console.log(`[${perf.now}][DeviceService] initDevice: deviceObservables.init() receives init device info...`, screenInfo)

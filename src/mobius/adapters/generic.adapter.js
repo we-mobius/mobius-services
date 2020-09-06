@@ -1,9 +1,11 @@
 const makeDriverMaker = (makeObserver, makeObservable) => {
-  return (input$) => {
+  return () => {
     const observer = makeObserver()
     const observable$ = makeObservable()
-    return (input$) => {
-      input$.subscribe(observer)
+    return input$ => {
+      if (input$) {
+        input$.subscribe(observer)
+      }
       const output$ = observable$
       return output$
     }
