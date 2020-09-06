@@ -2,6 +2,6 @@
 // import Authing from 'authing-js-sdk'
 
 // 客户端导入推荐使用：
-import Authing from 'authing-js-sdk/dist/authing-js-sdk-browser.js'
+import Authing from 'authing-js-sdk/dist/authing-js-sdk-browser.min.js'
 
 export { Authing }
