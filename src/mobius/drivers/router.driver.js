@@ -1,5 +1,5 @@
 import {
-  pathIn$, pathOut$,
+  pathnameIn$, pathnameOut$,
   searchIn$, searchOut$,
   hashIn$, hashOut$,
   hrefIn$, hrefOut$
@@ -11,7 +11,7 @@ import { shareReplay } from '../libs/rx.js'
  ******************************************/
 
 const observers = new Map([
-  ['path', pathIn$],
+  ['pathname', pathnameIn$],
   ['search', searchIn$],
   ['hash', hashIn$],
   ['href', hrefIn$]
@@ -21,13 +21,13 @@ const observers = new Map([
  *                 Output
  ******************************************/
 
-const pathOutShare$ = pathOut$.pipe(shareReplay(1))
+const pathnameOutShare$ = pathnameOut$.pipe(shareReplay(1))
 const searchOutShare$ = searchOut$.pipe(shareReplay(1))
 const hashOutShare$ = hashOut$.pipe(shareReplay(1))
 const hrefOutShare$ = hrefOut$.pipe(shareReplay(1))
 
 const observables = new Map([
-  ['path', pathOutShare$],
+  ['pathname', pathnameOutShare$],
   ['search', searchOutShare$],
   ['hash', hashOutShare$],
   ['href', hrefOutShare$]

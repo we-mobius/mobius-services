@@ -1,4 +1,4 @@
-import { get } from '../../utils/index.js'
+import { get } from '../../libs/mobius-utils.js'
 import { repositoryConfig, authingAuthState } from '../../config/index.js'
 import { Subject, Observable } from '../../libs/rx.js'
 import {

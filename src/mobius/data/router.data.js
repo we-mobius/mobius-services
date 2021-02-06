@@ -1,102 +1,90 @@
-import { isArray } from '../utils/index.js'
+import { pathnameToString } from '../libs/mobius-utils.js'
 import { getLinkElement } from '../common/index.js'
 
-const getRedirectFrom = () => window.location.search.substring(1).split('&').reduce((acc, cur) => {
-  const [key, value] = cur.split('=')
-  if (key === 'mobius_redirect') {
-    return value ? decodeURIComponent(value) : ''
-  } else {
-    // 只取第一个有效值
-    return acc || ''
-  }
-}, '')
+export const getPathname = () => window.location.pathname
 
-const getPath = () => window.location.pathname
-
-const setPath = path => {
-  if (isArray(path)) {
-    path = path.join('/')
-  }
+export const setPathname = pathname => {
+  pathname = pathnameToString(pathname)
   const link = getLinkElement()
-  link.pathname = path
+  link.pathname = pathname
   history.pushState({}, '', link.href)
   return link.pathname
 }
-const replacePath = path => {
-  if (isArray(path)) {
-    path = path.join('/')
-  }
+export const replacePathname = pathname => {
+  pathname = pathnameToString(pathname)
   const link = getLinkElement()
-  link.pathname = path
+  link.pathname = pathname
   history.replaceState({}, '', link.href)
   return link.pathname
 }
 
-const getSearch = () => window.location.search
-const setSearch = search => {
+export const getSearch = () => window.location.search
+export const setSearch = search => {
   const link = getLinkElement()
   link.search = search
   history.pushState({}, '', link.href)
   return link.search
 }
-const replaceSearch = search => {
+export const replaceSearch = search => {
   const link = getLinkElement()
   link.search = search
   history.replaceState({}, '', link.href)
   return link.search
 }
 
-const getHash = () => window.location.hash
-const setHash = hash => {
+export const getHash = () => window.location.hash
+export const setHash = hash => {
   const link = getLinkElement()
   link.hash = hash
   history.pushState({}, '', link.href)
   return link.hash
 }
-const replaceHash = hash => {
+export const replaceHash = hash => {
   const link = getLinkElement()
   link.hash = hash
   history.replaceState({}, '', link.href)
   return link.hash
 }
 
-const getHref = () => window.location.href
-const setHref = href => {
+export const getHref = () => window.location.href
+export const setHref = href => {
   const link = getLinkElement()
   link.href = href
   history.pushState({}, '', link.href)
   return link.href
 }
-const replaceHref = href => {
+export const replaceHref = href => {
   const link = getLinkElement()
   link.href = href
   history.replaceState({}, '', link.href)
   return link.href
 }
 
-const onHrefChange = handler => {
-  window.addEventListener('popstate', evt => {
+export const onHrefChange = handler => {
+  window.addEventListener('popstate', event => {
     handler(getHref())
   })
-  window.addEventListener('click', evt => {
-    const ele = evt.target
+  window.addEventListener('click', event => {
+    const ele = event.target
     const href = ele.getAttribute('href')
-    if (ele.tagName.toUpperCase() === 'A' && href) {
+    if (ele.tagName.toUpperCase() === 'A' && href !== null) {
+      console.warn(111)
       if (
         href.includes('tel:') ||
+        href.includes('javascript:') ||
         (getLinkElement(href).host !== location.host)
       ) return false
-      evt.preventDefault()
+      // TODO: URL Schemes
+      event.preventDefault()
       handler(href)
     }
   }, false)
 }
 
-export {
-  getRedirectFrom,
-  getPath, setPath, replacePath,
-  getSearch, setSearch, replaceSearch,
-  getHash, setHash, replaceHash,
-  getHref, setHref, replaceHref,
-  onHrefChange
-}
+// export {
+//   getPathname, setPathname, replacePathname,
+//   getSearch, setSearch, replaceSearch,
+//   getHash, setHash, replaceHash,
+//   getHref, setHref, replaceHref,
+//   onHrefChange
+// }

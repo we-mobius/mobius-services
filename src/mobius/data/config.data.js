@@ -7,7 +7,7 @@
  *   - 保存在本地
  *   - 保存至服务端
  */
-import { get, deepCopy } from '../utils/index.js'
+import { get, deepCopy } from '../libs/mobius-utils.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { dataConfig, defaultConfig } from '../config/index.js'
 import { Biu } from '../libs/biu.js'

@@ -1,4 +1,4 @@
-import { adaptMultiPlatform } from '../common/index.js'
+import { adaptMultiPlatform } from '../libs/mobius-utils.js'
 import { wxmina } from '../libs/wx.js'
 import { Biu } from '../libs/biu.js'
 

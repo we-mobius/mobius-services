@@ -1,4 +1,4 @@
-import { get } from '../utils/index.js'
+import { get } from '../libs/mobius-utils.js'
 import { isSeemsVaildAuthingToken } from '../const/index.js'
 import { dataConfig, authingAuthState } from '../config/index.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'

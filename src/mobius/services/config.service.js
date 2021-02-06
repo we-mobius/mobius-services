@@ -1,4 +1,4 @@
-import { perf, get } from '../utils/index.js'
+import { perf, get } from '../libs/mobius-utils.js'
 import { defaultConfig } from '../config/index.js'
 import { makeConfigObserver, configObservables } from '../drivers/config.driver.js'
 

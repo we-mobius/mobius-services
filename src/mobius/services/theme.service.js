@@ -1,5 +1,4 @@
-import { perf } from '../utils/index.js'
-import { adaptMultiPlatform } from '../common/index'
+import { perf, adaptMultiPlatform } from '../libs/mobius-utils.js'
 import { THEME, makeThemeModeCurrency } from '../const/theme.const.js'
 import { Observable, tap, take } from '../libs/rx.js'
 import { wxmina } from '../libs/wx.js'

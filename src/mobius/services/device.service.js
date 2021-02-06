@@ -1,5 +1,4 @@
-import { perf, debounce } from '../utils/index.js'
-import { adaptMultiPlatform } from '../common/index.js'
+import { perf, debounce, adaptMultiPlatform } from '../libs/mobius-utils.js'
 import {
   deviceObservables
 } from '../drivers/device.driver.js'

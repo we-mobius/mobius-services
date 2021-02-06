@@ -1,5 +1,5 @@
-import { perf } from '../utils/index.js'
-import { Biu, modifyBiuConfig } from '../libs/biu.js'
+import { perf, modifyBiuConfig } from '../libs/mobius-utils.js'
+import { Biu } from '../libs/biu.js'
 import { authingAuthObservables as authObservables } from '../drivers/authing.auth.driver.js'
 
 export * from '../libs/biu.js'

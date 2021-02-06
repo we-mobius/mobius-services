@@ -1,4 +1,4 @@
-import { adaptMultiPlatformAwait } from '../common/index'
+import { adaptMultiPlatformAwait } from '../libs/mobius-utils.js'
 
 import { initConfig, getConfig } from './config.service.js'
 import { initRequest } from './request.service.js'

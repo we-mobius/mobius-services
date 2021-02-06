@@ -1,4 +1,4 @@
-import { deepCopy } from '../utils/index.js'
+import { deepCopy } from '../libs/mobius-utils.js'
 import { INIT_CONFIG } from '../const/config.const.js'
 export * from './auth.config.js'
 

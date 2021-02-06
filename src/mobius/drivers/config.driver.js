@@ -1,4 +1,4 @@
-import { deepCopy, hardDeepMerge } from '../utils/index.js'
+import { deepCopy, hardDeepMerge } from '../libs/mobius-utils.js'
 import { defaultConfig } from '../config/index.js'
 import {
   Subject, merge,

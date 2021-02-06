@@ -3,6 +3,7 @@
   "version": "0.1.2",
   "description": "Mobius.js",
   "main": "./src/index.js",
+  "module": "./src/index.js",
   "keywords": [
     ""
   ],

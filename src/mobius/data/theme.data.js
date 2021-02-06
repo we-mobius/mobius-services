@@ -4,7 +4,7 @@
  * - LightSource
  */
 
-import { perf, get, throttle, packing } from '../utils/index.js'
+import { perf, get, throttle, packing } from '../libs/mobius-utils.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { THEME, isValidThemeMode, isValidThemeLightSource } from '../const/index.js'
 import { dataConfig } from '../config/index.js'

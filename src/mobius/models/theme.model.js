@@ -1,4 +1,4 @@
-import { perf } from '../utils/index.js'
+import { perf } from '../libs/mobius-utils.js'
 import { reactive, effect } from '../libs/reactivity.js'
 
 const theme = {

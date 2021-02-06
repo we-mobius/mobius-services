@@ -1,4 +1,4 @@
-import { perf, hardDeepMerge, deepCopy } from '../utils/index.js'
+import { perf, hardDeepMerge, deepCopy } from '../libs/mobius-utils.js'
 import { defaultConfig } from '../config/index.js'
 import { reactive, effect } from '../libs/reactivity.js'
 

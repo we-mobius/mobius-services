@@ -1,4 +1,6 @@
-import { perf, get, isFunction, isAsyncFn } from '../utils/index.js'
+import {
+  perf, get, isFunction, isAsyncFn
+} from '../libs/mobius-utils.js'
 import { commonConfig as config } from '../config/index.js'
 import { map, shareReplay } from '../libs/rx.js'
 
@@ -15,49 +17,6 @@ const _getFingerPrint = () => {
 
 const makeUniqueId = seed => {
   return `${seed}--${+new Date()}-${_getFingerPrint()}`
-}
-
-/***************************************
- *         Enviornment Detection
- ***************************************/
-const isWXMINA = () => {
-  // eslint-disable-next-line no-undef
-  return (typeof wx !== 'undefined') && wx.canIUse
-}
-const isWeb = () => typeof document === 'object'
-const adaptMultiPlatform = ({
-  webFn = () => {},
-  wxminaFn = () => {},
-  defaultFn = () => {}
-} = {
-  webFn: () => {},
-  wxminaFn: () => {},
-  defaultFn: () => {}
-}) => {
-  if (isWeb()) {
-    webFn && webFn()
-  } else if (isWXMINA()) {
-    wxminaFn && wxminaFn()
-  } else {
-    defaultFn && defaultFn()
-  }
-}
-const adaptMultiPlatformAwait = async ({
-  webFn = () => {},
-  wxminaFn = () => {},
-  defaultFn = () => {}
-} = {
-  webFn: () => {},
-  wxminaFn: () => {},
-  defaultFn: () => {}
-}) => {
-  if (isWeb()) {
-    webFn && await webFn()
-  } else if (isWXMINA()) {
-    wxminaFn && await wxminaFn()
-  } else {
-    defaultFn && await defaultFn()
-  }
 }
 
 const getLinkElement = href => {
@@ -120,7 +79,7 @@ const whenAllLoaded = (todoFn) => {
 
 export {
   makeUniqueId,
-  isWXMINA, isWeb, adaptMultiPlatform, adaptMultiPlatformAwait, getLinkElement,
+  getLinkElement,
   getDataFromLocalStorage, setDataToLocalStorage, makeLocalStorageHandlers,
   makeObservableSeletor,
   whenContentLoaded, whenAllLoaded

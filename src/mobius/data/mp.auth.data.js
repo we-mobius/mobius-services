@@ -1,4 +1,4 @@
-import { perf, get } from '../utils/index.js'
+import { perf, get } from '../libs/mobius-utils.js'
 import { dataConfig, mpAuthState } from '../config/index.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { Biu } from '../libs/biu.js'

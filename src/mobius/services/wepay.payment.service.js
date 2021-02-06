@@ -1,4 +1,4 @@
-import { perf } from '../utils/index.js'
+import { perf } from '../libs/mobius-utils.js'
 import { filter } from '../libs/rx.js'
 import {
   wepayPaymentObservers, wepayPaymentObservables

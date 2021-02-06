@@ -1,4 +1,4 @@
-import { perf, get, throttle } from '../utils/index.js'
+import { perf, get, throttle } from '../libs/mobius-utils.js'
 import { Biu } from '../libs/biu.js'
 import { dataConfig } from '../config/index.js'
 import { MPAPI_REQUEST_TYPES } from '../const/mp_api.const.js'

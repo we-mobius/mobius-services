@@ -1,4 +1,4 @@
-import { perf } from '../utils/index.js'
+import { perf } from '../libs/mobius-utils.js'
 import { wxweb } from '../libs/wx.js'
 import { mpAPIObservables } from '../drivers/mp_api.driver.js'
 

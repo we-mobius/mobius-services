@@ -1,98 +1,10 @@
 import {
-  isString, isObject, isFunction, asIs, hasOwnProperty,
-  hardDeepMerge, get,
-  flip, composeL, allPass,
-  makeErrorResponse, formatResponse
-} from '../utils/index.js'
-import { adaptMultiPlatform } from '../common/index'
-import { wxmina } from './wx.js'
-import axios from 'axios'
+  isString, isObject, asIs, hasOwnProperty,
+  composeL, allPass,
+  biu, axios
+} from '../libs/mobius-utils.js'
 
 export { axios }
-
-/***************************************************************
- *                            biu
- ***************************************************************/
-
-const _commonDefaultConfig = {
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-}
-// biu(config)
-// biu(modifier, config)
-// biu(config, modifier)
-export const biu = (config, _) => {
-  if (isFunction(_)) {
-    config = _(config || {})
-  }
-  if (isFunction(config)) {
-    config = config(_ || {})
-  }
-  if (!isObject(config)) {
-    throw TypeError('Config is expected to be an object, please check your config or config modifier whick should return an config object.')
-  }
-  config = { ..._commonDefaultConfig, ...config }
-  return new Promise((resolve, reject) => {
-    adaptMultiPlatform({
-      webFn: () => {
-        axios({
-          ...config
-        })
-          .then(resolve)
-          .catch(reject)
-      },
-      wxminaFn: () => {
-        try {
-          // @see https://developers.weixin.qq.com/miniprogram/dev/api/network/request/wx.request.html
-          wxmina.request({
-            dataType: 'json',
-            responseType: 'text',
-            ...config,
-            header: {
-              ...(config.headers || {})
-            },
-            success: resolve,
-            fail: reject
-          })
-        } catch (e) {
-          reject(e)
-        }
-      }
-    })
-  })
-    .then(res => {
-      if (!config.withDataExtracted) return res
-      const data = res.data
-      if (!data) return makeErrorResponse('There is no "data" field in request response.')
-      // TODO: 适配多接口返回值捆绑的情况
-      if (isObject(data)) {
-        const type = get(config, 'data.payload.type')
-        const actualData = get(data, `data.${type}`)
-        if (type && actualData) {
-          data.data = actualData
-        }
-      }
-      return formatResponse(data)
-    })
-    .then(res => {
-      const responseModifier = config.responseModifier || asIs
-      return responseModifier(res)
-    })
-    .catch(formatResponse)
-}
-export const modifyBiuConfig = flip(hardDeepMerge)
-// biu(equiped(asPostRequest)({ url: 'https://example.com' }))
-// biu(equiped(asPostRequest), { url: 'https://example.com' })
-// biu({ url: 'https://example.com' }, equiped(asPostRequest))
-export const asPostRequest = modifyBiuConfig({ method: 'POST' })
-export const asGetRequest = modifyBiuConfig({ method: 'GET' })
-export const withJSONContent = modifyBiuConfig({ headers: { 'Content-Type': 'application/json' } })
-export const withCredentials = modifyBiuConfig({ withCredentials: true })
-export const withoutCredentials = modifyBiuConfig({ withCredentials: false })
-
-export const withDataExtracted = modifyBiuConfig({ withDataExtracted: true })
 
 /***************************************************************
  *                          Biutor

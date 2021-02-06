@@ -1,42 +1,38 @@
+import { stdLineLog, pathnameToString } from '../../libs/mobius-utils.js'
 import { getLinkElement } from '../../common/index.js'
 import {
   Subject, startWith
 } from '../../libs/rx.js'
 import {
-  getPath, setPath, replacePath,
+  getPathname, setPathname, replacePathname,
   getSearch, setSearch, replaceSearch,
   getHash, setHash, replaceHash,
   getHref, setHref, replaceHref,
   onHrefChange
 } from '../../data/router.data.js'
 
-// const getInitPath = () => {
-//   const redirectFromURI = getRedirectFrom()
-//   if (redirectFromURI) {
-//     replaceUrl(redirectFromURI)
-//   }
-//   return getPath()
-// }
-
-const pathIn$ = {
-  next: ({ type, path }) => {
+const pathnameIn$ = {
+  next: ({ type = 'set', pathname }) => {
     // TODO: path verify
+    pathname = pathnameToString(pathname)
+    console.log(stdLineLog('RouterRepository', 'pathnameIn$.next', 'execute'), { type, pathname })
     if (type === 'set') {
-      _pathOutMid$.next(setPath(path))
+      _pathnameOutMid$.next(setPathname(pathname))
     } else if (type === 'replace') {
-      _pathOutMid$.next(replacePath(path))
+      _pathnameOutMid$.next(replacePathname(pathname))
     }
     _hrefOutMid$.next(getHref())
   },
   error: () => {},
   complete: () => {}
 }
-const _pathOutMid$ = new Subject()
-const pathOut$ = _pathOutMid$.pipe(startWith(getPath()))
+const _pathnameOutMid$ = new Subject()
+const pathnameOut$ = _pathnameOutMid$.pipe(startWith(getPathname()))
 
 const searchIn$ = {
-  next: ({ type, search }) => {
+  next: ({ type = 'set', search }) => {
     // TODO: search verify
+    console.log(stdLineLog('RouterRepository', 'searchIn$.next', 'execute'), { type, search })
     if (type === 'set') {
       _searchOutMid$.next(setSearch(search))
     } else if (type === 'replace') {
@@ -51,8 +47,9 @@ const _searchOutMid$ = new Subject()
 const searchOut$ = _searchOutMid$.pipe(startWith(getSearch()))
 
 const hashIn$ = {
-  next: ({ type, hash }) => {
+  next: ({ type = 'set', hash }) => {
     // TODO: hash verify
+    console.log(stdLineLog('RouterRepository', 'hashIn$.next', 'execute'), { type, hash })
     if (type === 'set') {
       _hashOutMid$.next(setHash(hash))
     } else if (type === 'replace') {
@@ -67,18 +64,16 @@ const _hashOutMid$ = new Subject()
 const hashOut$ = _hashOutMid$.pipe(startWith(getHash()))
 
 const hrefIn$ = {
-  next: ({ type, href }) => {
-    console.warn(`hrefIn$: type -> ${type}, href: ${href}`)
+  next: ({ type = 'set', href }) => {
     // TODO: href verify
+    console.log(stdLineLog('RouterRepository', 'hrefIn$.next', 'execute'), { type, href })
     if (type === 'set') {
-      console.warn('hrefIn$: set href')
       _hrefOutMid$.next(setHref(href))
     } else if (type === 'replace') {
-      console.warn('hrefIn$: replace href')
       _hrefOutMid$.next(replaceHref(href))
     }
-    console.warn(`hrefIn$: 操作完成之后 path 为： ${getPath()}`)
-    _pathOutMid$.next(getPath())
+    console.log(stdLineLog('RouterRepository', 'hrefIn$.next', `href after executed -> ${getHref()}`))
+    _pathnameOutMid$.next(getPathname())
     _searchOutMid$.next(getSearch())
     _hashOutMid$.next(getHash())
   },
@@ -88,16 +83,18 @@ const hrefIn$ = {
 const _hrefOutMid$ = new Subject()
 const hrefOut$ = _hrefOutMid$.pipe(startWith(getHref()))
 
-onHrefChange(href => {
-  const link = getLinkElement(href)
-  _hrefOutMid$.next(link.href)
-  _pathOutMid$.next(link.pathname)
-  _searchOutMid$.next(link.search)
-  _hashOutMid$.next(link.hash)
-})
+export const initHrefListener = () => {
+  onHrefChange(href => {
+    const link = getLinkElement(href)
+    _hrefOutMid$.next(link.href)
+    _pathnameOutMid$.next(link.pathname)
+    _searchOutMid$.next(link.search)
+    _hashOutMid$.next(link.hash)
+  })
+}
 
 export {
-  pathIn$, pathOut$,
+  pathnameIn$, pathnameOut$,
   searchIn$, searchOut$,
   hashIn$, hashOut$,
   hrefIn$, hrefOut$

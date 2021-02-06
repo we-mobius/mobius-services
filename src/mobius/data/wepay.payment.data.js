@@ -1,6 +1,5 @@
-import { perf, get } from '../utils/index.js'
+import { perf, get, adaptMultiPlatform } from '../libs/mobius-utils.js'
 import { dataConfig } from '../config/index.js'
-import { adaptMultiPlatform } from '../common/index.js'
 import { Biu } from '../libs/biu.js'
 import { wxweb } from '../libs/wx.js'
 

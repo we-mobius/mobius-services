@@ -1,4 +1,4 @@
-import { get } from '../utils/index.js'
+import { get } from '../libs/mobius-utils.js'
 import {
   Subject,
   combineLatest,

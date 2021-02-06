@@ -1,4 +1,4 @@
-import { isEmptyObj, isOutDated } from '../utils/index.js'
+import { isEmptyObj, isOutDated } from '../libs/mobius-utils.js'
 
 /*****************************************
  *              Common Auth Const

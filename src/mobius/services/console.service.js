@@ -1,5 +1,5 @@
 import VConsole from 'vconsole'
-import { perf } from '../utils/index.js'
+import { perf } from '../libs/mobius-utils.js'
 
 const initVConsole = () => {
   const vConsole = new VConsole()

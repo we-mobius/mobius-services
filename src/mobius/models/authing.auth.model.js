@@ -1,4 +1,4 @@
-import { hardDeepMerge, deepCopy, isEmptyObj, emptifyObj } from '../utils/index.js'
+import { hardDeepMerge, deepCopy, isEmptyObj, emptifyObj } from '../libs/mobius-utils.js'
 import { authingAuthState } from '../config/index.js'
 import { reactive, effect } from '../libs/reactivity.js'
 
