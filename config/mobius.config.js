@@ -7,7 +7,8 @@ const CSS_CDN_ORIGIN = 'https://fonts.googleapis.cnpmjs.org/'
 module.exports = {
   template: {
     index: {
-      title: 'Hello Mobius UI!',
+      title: 'Hello Mobius JS!',
+      whisper: 'The owner is looking for a job as a product manager | business manager \\n             For a quickest preview of his info, check https://www.cigaret.world',
       fonts: [
         `${PUBLIC_PATH}statics/fonts/Workbench[wdth,wght].woff2`,
         `${PUBLIC_PATH}statics/fonts/Sixtyfour[wdth,wght].woff2`
