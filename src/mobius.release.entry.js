@@ -1,4 +1,4 @@
-import * as MobiusJS from './index.js'
+import * as MobiusJS from './main.js'
 
 MobiusJS.adaptMultiPlatform({
   webFn: () => {

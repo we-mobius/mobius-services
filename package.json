@@ -2,8 +2,8 @@
   "name": "@we-mobius/mobius-js",
   "version": "0.1.2",
   "description": "Mobius.js",
-  "main": "./src/index.js",
-  "module": "./src/index.js",
+  "main": "./src/main.js",
+  "module": "./src/main.js",
   "keywords": [
     ""
   ],
