@@ -1,2 +1,2 @@
-export * from './mobius/utils/index.js'
-export * from './mobius/common/index.js'
+export * from './mobius--deprecate/utils/index.js'
+export * from './mobius--deprecate/common/index.js'
