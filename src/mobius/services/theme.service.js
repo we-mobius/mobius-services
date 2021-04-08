@@ -81,7 +81,7 @@ const initTheme = ({
     adaptMultiPlatform({
       webFn: () => {
         const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-        darkModeMediaQuery.addListener(e => {
+        darkModeMediaQuery.addEventListener('change', e => {
           const mode = e.matches ? THEME.MODE.DARK : THEME.MODE.LIGHT
           if (isAutoToggle() === 'open') {
             observer.next(makeThemeModeCurrency(mode))
