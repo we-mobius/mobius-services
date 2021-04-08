@@ -16,7 +16,7 @@
   <span style="font-weight: bold; color: hsla(96, 100%, 50%, 100%);">📜 中文文档</span>
 </p>
 
-<h1 align="center">项目名称</h1>
+<h1 align="center">Mobius JS</h1>
 
 🎨 一句话介绍项目。
 
@@ -66,8 +66,7 @@
 
 ## 技术栈
 
-- [cyclejs](https://github.com/cyclejs/cyclejs) - Great Jobs for handle DOMs functionally and reactively 🤞
-- [rxjs](https://github.com/ReactiveX/rxjs) - Reactive programming library for JavaScript
+- [Mobius Utils](https://github.com/we-mobius/mobius-utils)🤞
 - 其它...
 
 ## 作者
