@@ -12,7 +12,7 @@
   - model: 运行时的数据结构和关系模型
   - mapper: 运行时和数据侧的相互转换
   - usecase: 整合业务接口，处理多数据源读取事宜
-  - driver: usecase，暴露成套的可直接使用的 Atom
+  - driver: 整合 usecase，暴露成套的可直接使用的 Atom
   - service: 服务整合
 - adapters: 与框架结合的胶水层
 - enhancements: 对第三方 SDK 的改造和增强
