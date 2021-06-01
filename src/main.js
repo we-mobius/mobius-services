@@ -11,3 +11,4 @@ export * from './mobius--deprecate/enhancements/index.js'
 
 export * from './mobius/common/index.js'
 export * from './mobius/domains/app-route/app-route.service.js'
+export * from './mobius/domains/script-loader/script-loader.service.js'
