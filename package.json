@@ -28,7 +28,7 @@
   "author": {
     "name": "kongxiangyan",
     "email": "kcigaret@outlook.com",
-    "url": "https://cigaret.world/"
+    "url": "https://www.cigaret.world/"
   },
   "license": "GPL-3.0",
   "bugs": {
@@ -90,9 +90,12 @@
   "jsdelivr": "./release/mobius.js",
   "files": [
     "/release/*",
-    "/public/*",
     "/dist/*",
-    "/docs/*"
+    "/build/*",
+    "/src/*",
+    "/public/*",
+    "/docs/*",
+    "/bin/*"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
