@@ -1,144 +1,98 @@
 import {
-  isString, isObject, isNumber,
-  between,
   looseCurryN,
-  Data, Mutation,
+  Data,
   replayWithLatest,
-  pipeAtom,
-  mergeT, pluckT, mapT, withLatestFromT, createArrayMSTache,
+  createArrayMSTache,
   createGeneralDriver, useGeneralDriver
 } from '../../libs/mobius-utils.js'
-
-const INITIAL_ROUTES = {
-  stack: [''],
-  history: [{ prev: '', cur: '', directive: { type: 'navigate', route: '' } }],
-  roaming: { stack: [], step: 0 }
-}
+import { AppRouteManager } from './app-route.model.js'
 
 export const appRouteDriver = createGeneralDriver({
   prepareSingletonLevelContexts: (options, driverLevelContexts) => {
-    const {
-      pairs = [['/', 'index']], redirects = [], maxHistory = 100, maxStack = 100
-    } = options
-    const optionsRD = replayWithLatest(1, Data.of({ pairs, redirects, maxHistory, maxStack }))
-    // { type: 'navigate', route: path }
-    // { type: 'redirect', route: path }
-    // { type: 'roaming', step: Number }
-    //   -> where path -> 'home' | '/home' | './example' | '../analyze'
-    const navigateToD = Data.empty()
-    const redirectToD = Data.empty()
-    const roamingToD = Data.empty()
+    const optionsInD = Data.empty()
+    const optionsRD = replayWithLatest(1, Data.of(options))
 
-    const formattedNavigateToD = Data.empty()
-    const formattedRedirectToD = Data.empty()
-    const formattedRoamingToD = Data.empty()
+    const appRouteManager = new AppRouteManager({})
 
-    pipeAtom(navigateToD, Mutation.ofLiftLeft(route => {
-      if (isString(route)) {
-        return { type: 'navigate', route }
-      } else if (isObject(route)) {
-        return { type: 'navigate', route: route.route || '' }
-      } else {
-        throw (new TypeError(`"route" is expected to be type of "String" | "Object", but received "${typeof route}".`))
-      }
-    }), formattedNavigateToD)
-    pipeAtom(redirectToD, Mutation.ofLiftLeft(route => {
-      if (isString(route)) {
-        return { type: 'redirect', route }
-      } else if (isObject(route)) {
-        return { type: 'redirect', route: route.route || '' }
-      } else {
-        throw (new TypeError(`"route" is expected to be type of "String" | "Object", but received "${typeof route}".`))
-      }
-    }), formattedRedirectToD)
-    pipeAtom(roamingToD, Mutation.ofLiftLeft(step => {
-      if (isNumber(step)) {
-        return { type: 'redirect', step }
-      } else if (isObject(step)) {
-        return { type: 'redirect', step: step.step || 0 }
-      } else {
-        throw (new TypeError(`"route" is expected to be type of "Number" | "Object", but received "${typeof step}".`))
-      }
-    }), formattedRoamingToD)
+    const routeInD = Data.empty()
+    const navigateInD = Data.empty()
+    const redirectInD = Data.empty()
+    const roamingInD = Data.empty()
+    const refreshInD = Data.empty()
+    const forwardInD = Data.empty()
+    const backwardInD = Data.empty()
+    const queryInD = Data.empty()
+    const hashInD = Data.empty()
 
-    const routeToD = mergeT(formattedNavigateToD, formattedRedirectToD, formattedRoamingToD)
+    const directivesRD = replayWithLatest(1, Data.empty())
+    const historyRD = replayWithLatest(1, Data.empty())
+    const stackRD = replayWithLatest(1, Data.empty())
+    const roamingStateRD = replayWithLatest(1, Data.empty())
+    const routeRD = replayWithLatest(1, Data.empty())
 
-    // { stack, history: [{ prev, cur, directive }], roaming: { stack, step } }
-    const preRoutesD = Data.of(INITIAL_ROUTES)
-    const preRoutesToRoutesM = Mutation.ofLiftBoth(([preRoutes, options], routes) => {
-      const { maxHistory = 100, maxStack = 100 } = options
-      const { stack, history, roaming } = preRoutes
+    const emit = () => {
+      directivesRD.mutate(() => appRouteManager.directives)
+      historyRD.mutate(() => appRouteManager.history)
+      stackRD.mutate(() => appRouteManager.stack)
+      roamingStateRD.mutate(() => appRouteManager.roamingState)
+      routeRD.mutate(() => appRouteManager.currentRoute)
+    }
 
-      return { stack: stack.slice(-maxStack), history: history.slice(-maxHistory), roaming }
+    routeInD.subscribeValue(options => {
+      appRouteManager.route(options)
+      emit()
     })
-    const routesD = Data.of(INITIAL_ROUTES)
-    pipeAtom(withLatestFromT(optionsRD, preRoutesD), preRoutesToRoutesM, routesD)
-
-    const navigateM = Mutation.ofLiftBoth(([navigateTo, options], { stack, history, ...others }) => {
-      const { route } = navigateTo
-      const historyItem = { prev: stack[stack.length - 1], cur: route, directive: { ...navigateTo } }
-
-      stack.push(route)
-      history.push(historyItem)
-
-      return { stack, history, ...others }
+    navigateInD.subscribeValue(options => {
+      appRouteManager.navigate(options)
+      emit()
     })
-    pipeAtom(withLatestFromT(optionsRD, formattedNavigateToD), navigateM, preRoutesD)
-    const redirectM = Mutation.ofLiftBoth(([redirectTo, options], { stack, history, ...others }) => {
-      const { route } = redirectTo
-      const historyItem = { prev: stack[stack.length - 1], cur: route, directive: { ...redirectTo } }
-
-      // pop then push
-      // same as -> stack[stack.length - 1] = route
-      stack.pop()
-      stack.push(route)
-      history.push(historyItem)
-
-      return { stack, history, ...others }
+    redirectInD.subscribeValue(options => {
+      appRouteManager.redirect(options)
+      emit()
     })
-    pipeAtom(withLatestFromT(optionsRD, formattedRedirectToD), redirectM, preRoutesD)
-    const roamingM = Mutation.ofLiftBoth(([roamingTo, options], { stack, history, roaming, ...others }) => {
-      const { step } = roamingTo
-      let { stack: roamingStack, step: roamingStep } = roaming
-      const historyItem = { prev: stack[stack.length - 1], cur: undefined, directive: { ...roamingTo } }
-
-      // if the latest route operation is roaming, the isRoaming state is true
-      const isRoaming = history[history.length - 1].type === 'roaming'
-
-      if (isRoaming) {
-        roamingStep = roamingStep + step
-      } else {
-        roamingStack = stack
-        roamingStep = step
-      }
-      roamingStep = between(-1, 1 - roamingStack.length, roamingStep)
-      stack = roamingStack.slice(0, roamingStep)
-
-      historyItem.cur = stack[stack.length - 1]
-
-      history.push(historyItem)
-
-      return { stack, history, roaming: { stack: roamingStack, step: roamingStep }, ...others }
+    roamingInD.subscribeValue(options => {
+      appRouteManager.roaming(options)
+      emit()
     })
-    pipeAtom(withLatestFromT(optionsRD, formattedRoamingToD), roamingM, preRoutesD)
-
-    const routeRD = routesD.pipe(
-      pluckT('history'),
-      mapT(history => {
-        const { prev, cur } = history[history.length - 1]
-        return { from: prev, to: cur }
-      }),
-      replayWithLatest(1)
-    )
+    refreshInD.subscribeValue(options => {
+      appRouteManager.refresh(options)
+      emit()
+    })
+    forwardInD.subscribeValue(options => {
+      appRouteManager.forward(options)
+      emit()
+    })
+    backwardInD.subscribeValue(options => {
+      appRouteManager.backward(options)
+      emit()
+    })
+    queryInD.subscribeValue(options => {
+      appRouteManager.query(options)
+      emit()
+    })
+    hashInD.subscribeValue(options => {
+      appRouteManager.hash(options)
+      emit()
+    })
 
     return {
       inputs: {
-        navigateTo: navigateToD,
-        redirectTo: redirectToD,
-        roamingToD: roamingToD,
-        routeTo: routeToD
+        options: optionsInD,
+        route: routeInD,
+        navigate: navigateInD,
+        redirect: redirectInD,
+        roaming: roamingInD,
+        refresh: refreshInD,
+        forward: forwardInD,
+        backward: backwardInD,
+        query: queryInD,
+        hash: hashInD
       },
       outputs: {
+        directives: directivesRD,
+        history: historyRD,
+        stack: stackRD,
+        roamingState: roamingStateRD,
         route: routeRD
       },
       contexts: {
@@ -171,10 +125,10 @@ const processT = looseCurryN(2, createArrayMSTache({
     }
     if (id === 1) {
       const { isDistinct = true, level = undefined, defaultTo = undefined } = values[0]
-      let route = values[1].to
+      let route = values[1]
 
       if (level !== undefined) {
-        route = values[1].to.split('/')[level]
+        route = values[1].pathArr[level]
       }
       if (route === undefined) {
         if (defaultTo !== undefined) {
