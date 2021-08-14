@@ -33,7 +33,7 @@ const neatenOptions = options => {
   }
 
   if (isObject(options)) {
-    const { src, group, beforeLoad, onLoad, afterLoad, onError } = options
+    const { name, src, group, collect, beforeLoad, onLoad, afterLoad, onError } = options
     if (!src) {
       throw (new TypeError('"src" is required when "options" is of type Object.'))
     }
@@ -41,13 +41,15 @@ const neatenOptions = options => {
       throw (new TypeError(`"src" is expected to be type of String | Array, but received "${typeof src}".`))
     }
     if (isString(src)) {
-      res.push({ src, group, beforeLoad, onLoad, afterLoad, onError })
+      res.push({ name, src, group, collect, beforeLoad, onLoad, afterLoad, onError })
     } else if (isArray(src)) {
       src.forEach(item => {
         if (!isObject(item) && !isString(item)) {
           throw (new TypeError(`"item" is expected to be type of String | Array, but received "${typeof item}".`))
         }
         if (isObject(item)) {
+          item.name = item.name || name
+          item.collect = item.collect || collect
           item.group = item.group || group
           item.beforeLoad = item.beforeLoad || beforeLoad
           item.onLoad = item.onLoad || onLoad
@@ -55,7 +57,7 @@ const neatenOptions = options => {
           item.onError = item.onError || onError
           res.push(item)
         } else if (isString(item)) {
-          res.push({ src: item, group, beforeLoad, onLoad, afterLoad, onError })
+          res.push({ name, collect, src: item, group, beforeLoad, onLoad, afterLoad, onError })
         }
       })
     }
