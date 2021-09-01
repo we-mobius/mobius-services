@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import { adaptMultiPlatform } from './mobius-utils.js'
-import { initJWeixin } from './raw/jweixin-1.6.0'
+import { initJWeixin } from './raw/jweixin-1.6.0.js'
 
 let wxmina, wxweb
 adaptMultiPlatform({

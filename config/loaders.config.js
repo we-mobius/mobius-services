@@ -1,4 +1,4 @@
-const svgToMiniDataURI = require('mini-svg-data-uri')
+import svgToMiniDataURI from 'mini-svg-data-uri'
 
 const handlebarsLoader = {
   test: /\.(hbs|handlebars)$/i,
@@ -65,15 +65,22 @@ const fontLoader4Release = {
 }
 
 const jsLoader = {
-  test: /\.m?js$/,
+  test: /\.[m|c]?[j|t]sx?$/,
   exclude: /(node_modules|bower_components)/,
-  use: [{
-    loader: 'babel-loader'
-  }]
+  use: [
+    {
+      loader: 'babel-loader'
+    },
+    {
+      loader: 'ts-loader',
+      options: {
+        transpileOnly: true
+      }
+    }
+  ]
 }
 
-module.exports = {
-  development: [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader],
-  production: [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader],
-  release: [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader4Release]
-}
+export const getDevelopmentLoaders = () => [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader]
+export const getBuildLoaders = () => [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader]
+export const getProductionLoaders = () => [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader]
+export const getReleaseLoaders = () => [handlebarsLoader, jsLoader, imageLoader, svgLoader, fontLoader4Release]

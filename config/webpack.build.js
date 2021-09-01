@@ -1,11 +1,11 @@
 import { rootResolvePath } from '../scripts/utils.js'
-import { getDevelopmentLoaders } from './loaders.config.js'
-import { getDevelopmentPlugins } from './plugins.config.js'
+import { getBuildLoaders } from './loaders.config.js'
+import { getBuildPlugins } from './plugins.config.js'
 import CopyPlugin from 'copy-webpack-plugin'
 import path from 'path'
 
 const PATHS = {
-  output: rootResolvePath('dev')
+  output: rootResolvePath('build')
 }
 
 const reusedConfigs = {
@@ -16,12 +16,12 @@ const reusedConfigs = {
   module: {
     rules: [
       {
-        oneOf: [...getDevelopmentLoaders()]
+        oneOf: [...getBuildLoaders()]
       }
     ]
   },
   plugins: [
-    ...getDevelopmentPlugins(),
+    ...getBuildPlugins(),
     // CopyPlugin configurations: https://github.com/webpack-contrib/copy-webpack-plugin
     new CopyPlugin([
       {
@@ -36,14 +36,12 @@ const reusedConfigs = {
   ],
   // devtool: 'eval-source-map',
   devtool: 'source-map',
-  // ref: https://webpack.js.org/configuration/dev-server/
   // in ./scripts/dev.js
   devServer: {}
 }
 
 const webConfig = { ...reusedConfigs }
-
-export const getDevelopmentConfig = () => ([{
+export const getBuildConfig = () => ([{
   target: 'web',
   // node: {
   //   global: true
