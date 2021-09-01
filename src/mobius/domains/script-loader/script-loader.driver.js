@@ -33,7 +33,9 @@ const neatenOptions = options => {
   }
 
   if (isObject(options)) {
-    const { name, src, group, collect, beforeLoad, onLoad, afterLoad, onError } = options
+    // const { name, src, group, collect, beforeLoad, onLoad, afterLoad, onError } = options
+    const { src } = options
+    delete options.src
     if (!src) {
       throw (new TypeError('"src" is required when "options" is of type Object.'))
     }
@@ -41,23 +43,16 @@ const neatenOptions = options => {
       throw (new TypeError(`"src" is expected to be type of String | Array, but received "${typeof src}".`))
     }
     if (isString(src)) {
-      res.push({ name, src, group, collect, beforeLoad, onLoad, afterLoad, onError })
+      res.push({ src, ...options })
     } else if (isArray(src)) {
       src.forEach(item => {
         if (!isObject(item) && !isString(item)) {
           throw (new TypeError(`"item" is expected to be type of String | Array, but received "${typeof item}".`))
         }
         if (isObject(item)) {
-          item.name = item.name || name
-          item.collect = item.collect || collect
-          item.group = item.group || group
-          item.beforeLoad = item.beforeLoad || beforeLoad
-          item.onLoad = item.onLoad || onLoad
-          item.afterLoad = item.afterLoad || afterLoad
-          item.onError = item.onError || onError
-          res.push(item)
+          res.push({ ...options, ...item })
         } else if (isString(item)) {
-          res.push({ name, collect, src: item, group, beforeLoad, onLoad, afterLoad, onError })
+          res.push({ ...options, src: item })
         }
       })
     }
@@ -102,10 +97,13 @@ export const scriptLoaderDriver = createGeneralDriver({
   prepareSingletonLevelContexts: (options, driverLevelContexts) => {
     const javascriptInD = Data.empty()
     const loadJavascriptM = Mutation.ofLiftBoth((options, _, mutation) => {
+      // 将加载脚本的选项进行格式化
       options = neatenOptions(options)
+      // 检查选项是否合理有效
       if (!checkOptions(options)) {
         throw (new TypeError('Preserved groupname received!'))
       }
+      // 调用加载函数，执行加载逻辑，加载指定脚本
       loadMultipleJavaScript({ options }).then(res => {
         const { success, fail } = res
         if (isArray(success) && success.length > 0) {
