@@ -1,6 +1,6 @@
 {
   "name": "@we-mobius/mobius-services",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Collection of useful or powerful services based on Mobius Utils.",
   "type": "module",
   "typings": "./typings/main.d.ts",
