@@ -1,5 +1,5 @@
 import {
-  adaptMultipleEnvironments,
+  adaptMultipleEnvironments, isInWebEnvironment,
   Data,
   replayWithLatest,
   pluckT,
@@ -16,6 +16,8 @@ import type {
   DriverOptions, DriverLevelContexts, DriverSingletonLevelContexts
 } from '../../libs/mobius-utils'
 import type { AppTheme } from './app-theme.const'
+
+const webEnv = isInWebEnvironment()
 
 export interface AppThemeDriverOptions extends DriverOptions {
   /**
@@ -56,8 +58,8 @@ export const DEFAULT_APP_THEME_DRIVER_OPTIONS: Required<AppThemeDriverOptions> =
   isExpectUnknown: false,
   initPreferredColorScheme: AppThemePreferredColorScheme.Unknown,
   initPreferredLightSource: AppThemePreferredLightSource.Unknown,
-  preferredColorSchemeClue: [document.documentElement, 'theme'],
-  preferredLightSourceClue: [document.documentElement, 'source']
+  preferredColorSchemeClue: webEnv ? [document.documentElement, 'theme'] : ['', ''],
+  preferredLightSourceClue: webEnv ? [document.documentElement, 'source'] : ['', '']
 }
 
 /**
