@@ -76,7 +76,8 @@
   },
   "keywords": [
     "mobius",
-    "library"
+    "library",
+    "services"
   ],
   "directories": {
     "doc": "./docs",
@@ -93,7 +94,8 @@
     "serve:dist": "npx live-server ./dist --port=0624",
     "expose": "npx ngrok http 624",
     "bundle": "node ./scripts/bundle",
-    "beforepublish": "npm run build && npm run dist && npm run bundle"
+    "doc": "node ./scripts/document",
+    "beforepublish": "npm run build && npm run dist && npm run bundle && npm run doc"
   },
   "repository": {
     "type": "git",
@@ -139,6 +141,7 @@
     "mini-svg-data-uri": "^1.3.3",
     "terser-webpack-plugin": "^5.1.2",
     "ts-loader": "^9.2.5",
+    "typedoc": "^0.22.10",
     "typescript": "4.5",
     "webpack": "^5.10.3",
     "webpack-bundle-analyzer": "^4.2.0",

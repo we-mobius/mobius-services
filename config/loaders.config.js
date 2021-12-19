@@ -66,7 +66,8 @@ const fontLoader4Release = {
 
 const jsLoader = {
   test: /\.[m|c]?[j|t]sx?$/,
-  exclude: /(node_modules|bower_components)/,
+  // exclude: /(node_modules|bower_components)/,
+  exclude: /(bower_components)/,
   use: [
     {
       loader: 'babel-loader'
