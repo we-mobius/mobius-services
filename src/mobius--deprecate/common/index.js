@@ -1,5 +1,5 @@
 import {
-  perf, get, isFunction, isAsyncFn
+  perf, getPropByPath, isFunction, isAsyncFunction
 } from '../libs/mobius-utils.js'
 import { commonConfig as config } from '../config/index.js'
 import { map, shareReplay } from '../libs/rx.js'
@@ -53,7 +53,7 @@ const makeObservableSeletor = observable$ => {
       let res$ = path ? _observablesMap.get(path) : observable$
       if (!res$) {
         res$ = observable$.pipe(
-          map(data => get(data, path)),
+          map(data => getPropByPath(path, data)),
           shareReplay(1)
         )
         _observablesMap.set(path, res$)
@@ -68,7 +68,7 @@ const makeObservableSeletor = observable$ => {
 const whenContentLoaded = (todoFn) => {
   console.log(`[${perf.now}][LifeCycleCommon] DOMContentLoaded: handler registered...`)
   document.addEventListener('DOMContentLoaded', () => {
-    console.log(`[${perf.now}][LifeCycleCommon] DOMContentLoaded: handler${isAsyncFn(todoFn) ? '(Async)' : ''} start executing...`)
+    console.log(`[${perf.now}][LifeCycleCommon] DOMContentLoaded: handler${isAsyncFunction(todoFn) ? '(Async)' : ''} start executing...`)
     todoFn()
     console.log(`[${perf.now}][LifeCycleCommon] DOMContentLoaded: handler executed...`)
   })

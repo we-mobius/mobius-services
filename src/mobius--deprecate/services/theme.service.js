@@ -1,4 +1,4 @@
-import { perf, adaptMultiPlatform } from '../libs/mobius-utils.js'
+import { perf, adaptMultipleEnvironments } from '../libs/mobius-utils.js'
 import { THEME, makeThemeModeCurrency } from '../const/theme.const.js'
 import { Observable, tap, take } from '../libs/rx.js'
 import { wxmina } from '../libs/wx.js'
@@ -18,8 +18,8 @@ let firstSaveCompleted = false
 const adjustToSystemMode = () => {
   console.log(`[${perf.now}][ThemeService] attempt to adjustToSystemMode...`)
   if (firstGetCompleted && firstSaveCompleted) {
-    adaptMultiPlatform({
-      webFn: () => {
+    adaptMultipleEnvironments({
+      forWeb: () => {
         const mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? THEME.MODE.DARK : THEME.MODE.LIGHT
         console.log(`[${perf.now}][ThemeService](web) adjustToSystemMode...`, mode)
         // NOTE: put it to next tick
@@ -27,7 +27,7 @@ const adjustToSystemMode = () => {
           makeThemeObserver().next(makeThemeModeCurrency(mode))
         }, 0)
       },
-      wxminaFn: () => {
+      forWXMINA: ({ wxmina }) => {
         wxmina.getSystemInfo({
           success: (res) => {
             const mode = res.theme === 'dark' ? THEME.MODE.DARK : THEME.MODE.LIGHT
@@ -78,8 +78,8 @@ const initTheme = ({
   // NOTE: will not triggerd when first loaded
   console.log(`[${perf.now}][ThemeService] initTheme: register theme autochange events...`)
   const darkModeChangeEmitter$ = new Observable(observer => {
-    adaptMultiPlatform({
-      webFn: () => {
+    adaptMultipleEnvironments({
+      forWeb: () => {
         const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
         darkModeMediaQuery.addEventListener('change', e => {
           const mode = e.matches ? THEME.MODE.DARK : THEME.MODE.LIGHT
@@ -88,7 +88,7 @@ const initTheme = ({
           }
         })
       },
-      wxminaFn: () => {
+      forWXMINA: ({ wxmina }) => {
         wxmina.onThemeChange(mode => {
           mode = mode === 'dark' ? THEME.MODE.DARK : THEME.MODE.LIGHT
           if (isAutoToggle() === 'open') {

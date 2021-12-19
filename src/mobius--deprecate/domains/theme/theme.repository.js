@@ -1,4 +1,4 @@
-import { get } from '../../libs/mobius-utils.js'
+import { getPropByPath } from '../../libs/mobius-utils.js'
 import {
   makeThemeModeCurrency, makeThemeLightSourceCurrency
 } from '../../const/index.js'
@@ -16,7 +16,7 @@ import {
   getLightSourceFromDefault
 } from '../../data/theme.data.js'
 
-const saveTo = () => get(repositoryConfig, 'theme.saveTo')
+const saveTo = () => getPropByPath('theme.saveTo', repositoryConfig)
 const isSaveToServer = () => saveTo() === 'server'
 const isSaveToLocal = () => saveTo() === 'local'
 const isSaveToRuntime = () => saveTo() === 'runtime'

@@ -1,4 +1,4 @@
-import { adaptMultiPlatform } from '../libs/mobius-utils.js'
+import { adaptMultipleEnvironments } from '../libs/mobius-utils.js'
 import { wxmina } from '../libs/wx.js'
 import { Biu } from '../libs/biu.js'
 
@@ -21,7 +21,7 @@ const getDeviceGeo = async () => {
         const countryCode = countryCodeExpression.exec(responseText)
         const ip = userIPExpression.exec(responseText)
         if (countryCode === null || countryCode[1] === '' ||
-                        ip === null || ip[1] === '') {
+          ip === null || ip[1] === '') {
           throw Error('IP/Country code detection failed...')
         }
         const result = {
@@ -43,7 +43,7 @@ const getDeviceGeo = async () => {
 const getDeviceScreen = () => {
   return new Promise((resolve, reject) => {
     let width, height
-    adaptMultiPlatform({
+    adaptMultipleEnvironments({
       webFn: () => {
         width = document.documentElement.clientWidth
         height = document.documentElement.clientHeight

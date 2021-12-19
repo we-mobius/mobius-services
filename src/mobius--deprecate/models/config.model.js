@@ -1,4 +1,4 @@
-import { perf, hardDeepMerge, deepCopy } from '../libs/mobius-utils.js'
+import { perf, deepMerge, deepCopy } from '../libs/mobius-utils.js'
 import { defaultConfig } from '../config/index.js'
 import { reactive, effect } from '../libs/reactivity.js'
 
@@ -7,7 +7,7 @@ const defaultConfigProxy = reactive(defaultConfig)
 const changeConfig = configChanges => {
   console.log(`[${perf.now}][ConfigModel] changeConfig: runtimeConfig changes received...`, configChanges)
   configChanges = configChanges || {}
-  hardDeepMerge(defaultConfigProxy, configChanges)
+  deepMerge(defaultConfigProxy, configChanges)
 }
 
 const onConfigChange = handler => {

@@ -1,4 +1,4 @@
-import { get } from '../../libs/mobius-utils.js'
+import { getPropByPath } from '../../libs/mobius-utils.js'
 import { repositoryConfig } from '../../config/index.js'
 import { Observable } from '../../libs/rx.js'
 import {
@@ -8,7 +8,7 @@ import {
 } from '../../data/config.data.js'
 
 // keep config fresh
-const saveTo = () => get(repositoryConfig, 'config.saveTo')
+const saveTo = () => getPropByPath('config.saveTo', repositoryConfig)
 const isSaveToServer = () => saveTo() === 'server'
 const isSaveToLocal = () => saveTo() === 'local'
 const isSaveToRuntime = () => saveTo() === 'runtime'

@@ -66,7 +66,7 @@ export const getReleaseConfig = () => ([
       // @refer: https://webpack.js.org/configuration/output/#outputlibrarytype
       // libraryTarget: 'umd',
       library: {
-        name: 'MobiusJS',
+        name: 'MobiusServices',
         type: 'umd'
       },
       // @refer: https://webpack.js.org/configuration/output/#outputglobalobject
@@ -88,7 +88,6 @@ export const getReleaseConfig = () => ([
       // @refer: https://webpack.js.org/configuration/output/#outputlibrarytype
       // libraryTarget: 'umd',
       library: {
-        name: 'MobiusJS',
         type: 'commonjs2'
       }
     },

@@ -1,4 +1,4 @@
-import { deepCopy, hardDeepMerge } from '../libs/mobius-utils.js'
+import { deepCopy, deepMerge } from '../libs/mobius-utils.js'
 import { defaultConfig } from '../config/index.js'
 import {
   Subject, merge,
@@ -25,7 +25,7 @@ const makeInputSubject = () => {
   })
   inputSubject.pipe(
     map(configChanges =>
-      hardDeepMerge(deepCopy(defaultConfig), configChanges)
+      deepMerge(deepCopy(defaultConfig), configChanges)
     )
   ).subscribe(configIn$)
 

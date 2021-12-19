@@ -1,4 +1,4 @@
-import { perf, debounce, adaptMultiPlatform } from '../libs/mobius-utils.js'
+import { perf, debounce, adaptMultipleEnvironments } from '../libs/mobius-utils.js'
 import {
   deviceObservables
 } from '../drivers/device.driver.js'
@@ -35,7 +35,7 @@ const initDevice = ({
   }
 
   console.log(`[${perf.now}][DeviceService] initDevice: initialize screen resize change triggers...`)
-  adaptMultiPlatform({
+  adaptMultipleEnvironments({
     webFn: () => {
       window.addEventListener('resize', debounce(() => {
         deviceObservables.trigger('screen').subscribe(() => {})

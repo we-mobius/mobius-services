@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://standardjs.com"><img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg" alt="Standard - JavaScript Style Guide"></a>
   <a href="http://commitizen.github.io/cz-cli/"><img src="https://img.shields.io/badge/commitizen-friendly-brightgreen.svg" alt="Commitizen friendly"></a>
-  <a href="https://www.jsdelivr.com/package/gh/we-mobius/mobius-js"><img src="https://data.jsdelivr.com/v1/package/gh/we-mobius/mobius-js/badge" alt="Distributed on jsDelivr"></a>
+  <a href="https://www.jsdelivr.com/package/gh/we-mobius/mobius-services"><img src="https://data.jsdelivr.com/v1/package/gh/we-mobius/mobius-services/badge" alt="Distributed on jsDelivr"></a>
 </p>
 
 <p align="center">

@@ -1,4 +1,4 @@
-import { perf, get } from '../libs/mobius-utils.js'
+import { perf, getPropByPath } from '../libs/mobius-utils.js'
 import { dataConfig, mpAuthState } from '../config/index.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { Biu } from '../libs/biu.js'
@@ -6,7 +6,7 @@ import { Biu } from '../libs/biu.js'
 const biu = Biu.scope('inner').biu
 
 // keep config fresh
-const localStorageKeyName = () => get(dataConfig, 'auth.mp.localStorageKeyName')
+const localStorageKeyName = () => getPropByPath('auth.mp.localStorageKeyName', dataConfig)
 const _getAuthStateFromLocal = () => getDataFromLocalStorage(localStorageKeyName) || {}
 const _setAuthStateToLocal = authState => {
   setDataToLocalStorage(localStorageKeyName, authState)
@@ -17,8 +17,8 @@ const setAuthStateToLocal = authState => {
   _setAuthStateToLocal(authState)
 }
 
-const loginUrl = () => get(dataConfig, 'auth.mp.requestInfo.loginUrl')
-const getUserInfoUrl = () => get(dataConfig, 'auth.mp.requestInfo.getUserInfoUrl')
+const loginUrl = () => getPropByPath('auth.mp.requestInfo.loginUrl', dataConfig)
+const getUserInfoUrl = () => getPropByPath('auth.mp.requestInfo.getUserInfoUrl', dataConfig)
 
 const currentAuth = () => mpAuthState
 

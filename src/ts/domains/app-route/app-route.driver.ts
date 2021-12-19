@@ -1,41 +1,112 @@
 import {
   looseCurryN,
+  isVacuo, TERMINATOR,
   Data,
   replayWithLatest,
   createArrayMSTache,
-  createGeneralDriver, useGeneralDriver
+  createGeneralDriver, useGeneralDriver_
 } from '../../libs/mobius-utils'
-import { AppRouteManager } from './app-route.model'
+import { AppRouteManager } from './app-route__app-route-manager.model'
 
-export const appRouteDriver = createGeneralDriver({
+import type {
+  ReplayDataMediator,
+  DriverOptions, DriverLevelContexts, DriverSingletonLevelContexts, DriverInstance
+} from '../../libs/mobius-utils'
+import type {
+  AppRouteManagerOptions,
+  AppRouteManagerRouteOptions, AppRouteManagerNavigateOptions, AppRouteManagerRedirectOptions, AppRouteManagerRefreshOptions,
+  AppRouteManagerRoamingOptions, AppRouteManagerForwardOptions, AppRouteManagerBackwardOptions,
+  AppRouteManagerQueryOptions, AppRouteManagerHashOptions,
+  AppRouteManagerDirectives, AppRouteManagerHistory, AppRouteManagerStack, AppRouteManagerRoamingState
+} from './app-route__app-route-manager.model'
+import type {
+  Route, RouteRecord
+} from './app-route__route.model'
+
+export interface AppRouteDriverOptions extends DriverOptions, AppRouteManagerOptions { }
+export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLevelContexts {
+  inputs: {
+    options: Data<AppRouteDriverOptions>
+    route: Data<AppRouteManagerRouteOptions>
+    navigate: Data<AppRouteManagerNavigateOptions>
+    redirect: Data<AppRouteManagerRedirectOptions>
+    refresh: Data<AppRouteManagerRefreshOptions>
+    roaming: Data<AppRouteManagerRoamingOptions>
+    forward: Data<AppRouteManagerForwardOptions>
+    backward: Data<AppRouteManagerBackwardOptions>
+    query: Data<AppRouteManagerQueryOptions>
+    hash: Data<AppRouteManagerHashOptions>
+  }
+  outputs: {
+    options: ReplayDataMediator<AppRouteDriverOptions>
+    directives: ReplayDataMediator<AppRouteManagerDirectives>
+    history: ReplayDataMediator<AppRouteManagerHistory>
+    stack: ReplayDataMediator<AppRouteManagerStack>
+    stackRecord: ReplayDataMediator<RouteRecord[]>
+    roamingState: ReplayDataMediator<AppRouteManagerRoamingState>
+    currentRoute: ReplayDataMediator<Route>
+    currentRouteRecord: ReplayDataMediator<RouteRecord>
+  }
+}
+export interface AppRouteDriverInstance extends DriverInstance {
+  inputs: {
+    options: Data<AppRouteDriverOptions>
+    route: Data<AppRouteManagerRouteOptions>
+    navigate: Data<AppRouteManagerNavigateOptions>
+    redirect: Data<AppRouteManagerRedirectOptions>
+    refresh: Data<AppRouteManagerRefreshOptions>
+    roaming: Data<AppRouteManagerRoamingOptions>
+    forward: Data<AppRouteManagerForwardOptions>
+    backward: Data<AppRouteManagerBackwardOptions>
+    query: Data<AppRouteManagerQueryOptions>
+    hash: Data<AppRouteManagerHashOptions>
+  }
+  outputs: {
+    options: ReplayDataMediator<AppRouteDriverOptions>
+    directives: ReplayDataMediator<AppRouteManagerDirectives>
+    history: ReplayDataMediator<AppRouteManagerHistory>
+    stack: ReplayDataMediator<AppRouteManagerStack>
+    stackRecord: ReplayDataMediator<RouteRecord[]>
+    roamingState: ReplayDataMediator<AppRouteManagerRoamingState>
+    currentRoute: ReplayDataMediator<Route>
+    currentRouteRecord: ReplayDataMediator<RouteRecord>
+  }
+}
+
+export const makeAppRouteDriver =
+createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSingletonLevelContexts, AppRouteDriverInstance>({
   prepareSingletonLevelContexts: (options, driverLevelContexts) => {
-    const optionsInD = Data.empty()
-    const optionsRD = replayWithLatest(1, Data.of(options))
+    const optionsInD = Data.empty<AppRouteDriverOptions>()
+    const optionsRD = replayWithLatest(1, Data.of<AppRouteDriverOptions>(options))
 
     const appRouteManager = new AppRouteManager({})
 
-    const routeInD = Data.empty()
-    const navigateInD = Data.empty()
-    const redirectInD = Data.empty()
-    const roamingInD = Data.empty()
-    const refreshInD = Data.empty()
-    const forwardInD = Data.empty()
-    const backwardInD = Data.empty()
-    const queryInD = Data.empty()
-    const hashInD = Data.empty()
+    const routeInD = Data.empty<AppRouteManagerRouteOptions>()
+    const navigateInD = Data.empty<AppRouteManagerNavigateOptions>()
+    const redirectInD = Data.empty<AppRouteManagerRedirectOptions>()
+    const refreshInD = Data.empty<AppRouteManagerRefreshOptions>()
+    const roamingInD = Data.empty<AppRouteManagerRoamingOptions>()
+    const forwardInD = Data.empty<AppRouteManagerForwardOptions>()
+    const backwardInD = Data.empty<AppRouteManagerBackwardOptions>()
+    const queryInD = Data.empty<AppRouteManagerQueryOptions>()
+    const hashInD = Data.empty<AppRouteManagerHashOptions>()
 
-    const directivesRD = replayWithLatest(1, Data.empty())
-    const historyRD = replayWithLatest(1, Data.empty())
-    const stackRD = replayWithLatest(1, Data.empty())
-    const roamingStateRD = replayWithLatest(1, Data.empty())
-    const routeRD = replayWithLatest(1, Data.empty())
+    const directivesRD = replayWithLatest(1, Data.empty<AppRouteManagerDirectives>())
+    const historyRD = replayWithLatest(1, Data.empty<AppRouteManagerHistory>())
+    const stackRD = replayWithLatest(1, Data.empty<AppRouteManagerStack>())
+    const stackRecordRD = replayWithLatest(1, Data.empty<RouteRecord[]>())
+    const roamingStateRD = replayWithLatest(1, Data.empty<AppRouteManagerRoamingState>())
+    const currentRouteRD = replayWithLatest(1, Data.empty<Route>())
+    const currentRouteRecordRD = replayWithLatest(1, Data.empty<RouteRecord>())
 
-    const emit = () => {
+    const emit = (): void => {
       directivesRD.mutate(() => appRouteManager.directives)
       historyRD.mutate(() => appRouteManager.history)
       stackRD.mutate(() => appRouteManager.stack)
+      stackRecordRD.mutate(() => appRouteManager.stackRecord)
       roamingStateRD.mutate(() => appRouteManager.roamingState)
-      routeRD.mutate(() => appRouteManager.currentRoute)
+      currentRouteRD.mutate(() => appRouteManager.currentRoute)
+      currentRouteRecordRD.mutate(() => appRouteManager.currentRouteRecord)
     }
 
     routeInD.subscribeValue(options => {
@@ -81,22 +152,25 @@ export const appRouteDriver = createGeneralDriver({
         route: routeInD,
         navigate: navigateInD,
         redirect: redirectInD,
-        roaming: roamingInD,
         refresh: refreshInD,
+        roaming: roamingInD,
         forward: forwardInD,
         backward: backwardInD,
         query: queryInD,
         hash: hashInD
       },
       outputs: {
+        options: optionsRD,
         directives: directivesRD,
         history: historyRD,
         stack: stackRD,
+        stackRecord: stackRecordRD,
         roamingState: roamingStateRD,
-        route: routeRD
+        currentRoute: currentRouteRD,
+        currentRouteRecord: currentRouteRecordRD
       },
       contexts: {
-        processT
+        processT: processT_
       }
     }
   },
@@ -106,49 +180,81 @@ export const appRouteDriver = createGeneralDriver({
   }
 })
 
-export const useAppRouteDriver = useGeneralDriver(appRouteDriver)
+/**
+ * @see {@link makeAppRouteDriver}
+ */
+export const useAppRouteDriver = useGeneralDriver_(makeAppRouteDriver)
 
-const processT = looseCurryN(2, createArrayMSTache({
+interface ProcessOptions {
+  isDistinct?: boolean
+  level?: number
+  defaultTo?: string
+}
+const DEFAULT_PROCESS_OPTIONS: ProcessOptions = {
+  isDistinct: true,
+  level: undefined,
+  defaultTo: undefined
+}
+
+/**
+ *
+ */
+const processT = createArrayMSTache<[ProcessOptions, RouteRecord], string, true, 'partly', 'left'>({
   acceptNonAtom: true,
-  opCustomizeType: 'partly',
-  opLiftType: 'left',
+  customizeType: 'partly',
+  options: { lift: { position: 'left' } },
+  sourcesType: 'array',
   autoUpdateContexts: true,
-  operation: (prev, cur, mutation, contexts) => {
-    const { states, values, TERMINATOR } = contexts
-    const { id } = prev
+  transformation: (prev, cur, mutation, contexts) => {
+    if (isVacuo(prev)) return TERMINATOR
+    if (isVacuo(prev.value)) return TERMINATOR
+
+    const { states, values } = contexts
+    const { key } = prev
 
     if (!states[0] || !states[1]) {
       return TERMINATOR
     }
-    if (id === 0) {
+    if (key === 0) {
       return TERMINATOR
     }
-    if (id === 1) {
-      const { isDistinct = true, level = undefined, defaultTo = undefined } = values[0]
-      let route = values[1]
+    if (key === 1) {
+      const {
+        isDistinct, level, defaultTo
+      } = { ...DEFAULT_PROCESS_OPTIONS, ...values[0]! }
+      const route = values[1]!
+
+      let preparedRoute: string | undefined
 
       if (level !== undefined) {
-        route = values[1].pathArr[level]
+        preparedRoute = route.pathArr[level]
       }
-      if (route === undefined) {
+
+      if (preparedRoute === undefined) {
         if (defaultTo !== undefined) {
-          route = defaultTo
+          preparedRoute = defaultTo
         } else {
           console.error('Route is undefined.')
           return TERMINATOR
         }
       }
 
-      if (isDistinct) {
-        if (route === contexts.prev) {
+      if (isDistinct === true) {
+        if (preparedRoute === contexts.prev) {
           return TERMINATOR
         } else {
-          contexts.prev = route
-          return route
+          contexts.prev = preparedRoute
         }
-      } else {
-        return route
       }
+
+      return preparedRoute
     }
+
+    throw (new TypeError('Unexpected key!'))
   }
-}))
+})
+
+/**
+ * @see {@link processT}
+ */
+const processT_ = looseCurryN(2, processT)

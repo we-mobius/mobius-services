@@ -1,11 +1,11 @@
-import { get } from '../libs/mobius-utils.js'
+import { getPropByPath } from '../libs/mobius-utils.js'
 import { isSeemsVaildAuthingToken } from '../const/index.js'
 import { dataConfig, authingAuthState } from '../config/index.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { Authing } from '../libs/authing.js'
 
 // keep config fresh
-const localStorageKeyName = () => get(dataConfig, 'auth.authing.localStorageKeyName')
+const localStorageKeyName = () => getPropByPath('auth.authing.localStorageKeyName', dataConfig)
 const _getAuthStateFromLocal = () => getDataFromLocalStorage(localStorageKeyName) || {}
 const _setAuthStateToLocal = authState => {
   setDataToLocalStorage(localStorageKeyName, authState)
@@ -19,7 +19,7 @@ const setAuthStateToLocal = authState => {
 const currentAuth = () => authingAuthState
 
 // keep config fresh
-const authingOptions = () => get(dataConfig, 'auth.authing.authingOptions')
+const authingOptions = () => getPropByPath('auth.authing.authingOptions', dataConfig)
 const authingIns = (() => {
   const _authingInstanceMap = new Map()
   const _getAuthingInstance = (userPoolId) => {

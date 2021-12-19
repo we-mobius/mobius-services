@@ -1,4 +1,4 @@
-import { adaptMultiPlatformAwait } from '../libs/mobius-utils.js'
+import { adaptMultipleEnvironmentsAsync } from '../libs/mobius-utils.js'
 
 import { initConfig, getConfig } from './config.service.js'
 import { initRequest } from './request.service.js'
@@ -84,8 +84,8 @@ const initMobiusJS = async ({
 
     await initAuth()
   }
-  await adaptMultiPlatformAwait({
-    webFn: async () => {
+  await adaptMultipleEnvironmentsAsync({
+    forWeb: async () => {
       await commonFn()
       initTheme({
         // modeHandler: mode => {},
@@ -94,7 +94,7 @@ const initMobiusJS = async ({
       })
       initDevice({ })
     },
-    wxminaFn: async () => {
+    forWXMINA: async () => {
       await commonFn()
 
       initTheme({

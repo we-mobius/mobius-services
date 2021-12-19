@@ -1,4 +1,4 @@
-import { get } from '../../libs/mobius-utils.js'
+import { getPropByPath } from '../../libs/mobius-utils.js'
 import { repositoryConfig, authingAuthState } from '../../config/index.js'
 import { Subject, Observable } from '../../libs/rx.js'
 import {
@@ -7,7 +7,7 @@ import {
 } from '../../data/authing.auth.data.js'
 
 // keep config fresh
-const saveTo = () => get(repositoryConfig, 'auth.authing.saveTo')
+const saveTo = () => getPropByPath('auth.authing.saveTo', repositoryConfig)
 const isSaveToLocal = () => saveTo() === 'local'
 const isSaveToRuntime = () => saveTo() === 'runtime'
 

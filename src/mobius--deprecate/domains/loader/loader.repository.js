@@ -1,5 +1,5 @@
 import { Subject, startWith } from '../../libs/rx.js'
-import { isArray, isObject, isString, makeSuccessResponseF, makeFailResponseF } from '../../libs/mobius-utils.js'
+import { isArray, isObject, isString, dataToResponse, makeFailResponse } from '../../libs/mobius-utils.js'
 import {
   collectJavaScript, loadJavaScript, loadMultipleJavaScript,
   collectCSS, loadCSS
@@ -96,10 +96,10 @@ const jsIn$ = {
           collection[group] = collection[group] || []
           collection[group].push(script)
         })
-        _jsOutMid$.next(makeSuccessResponseF({ success, collection }))
+        _jsOutMid$.next(dataToResponse({ success, collection }))
       }
       if (isArray(fail) && fail.length > 0) {
-        _jsOutMid$.next(makeFailResponseF('Some of outer JavaScript fail to load', { fail }))
+        _jsOutMid$.next(makeFailResponse({ statusMessage: 'Some of outer JavaScript fail to load', data: { fail } }))
       }
     })
   },
@@ -107,7 +107,7 @@ const jsIn$ = {
   complete: () => {}
 }
 const _jsOutMid$ = new Subject()
-const jsOut$ = _jsOutMid$.pipe(startWith(makeSuccessResponseF({ collection: { ...collectJavaScript() } })))
+const jsOut$ = _jsOutMid$.pipe(startWith(dataToResponse({ collection: { ...collectJavaScript() } })))
 
 export {
   jsIn$, jsOut$

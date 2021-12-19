@@ -1,4 +1,4 @@
-import { perf, get, adaptMultiPlatform } from '../libs/mobius-utils.js'
+import { perf, getPropByPath, adaptMultipleEnvironments } from '../libs/mobius-utils.js'
 import { dataConfig } from '../config/index.js'
 import { Biu } from '../libs/biu.js'
 import { wxweb } from '../libs/wx.js'
@@ -6,8 +6,8 @@ import { wxweb } from '../libs/wx.js'
 const biu = Biu.scope('inner').biu
 
 // keep config fresh
-const getWepayParamsUrl = () => get(dataConfig, 'payment.wepay.requestInfo.getWepayParamsUrl')
-const getTradeStateUrl = () => get(dataConfig, 'payment.wepay.requestInfo.getTradeStateUrl')
+const getWepayParamsUrl = () => getPropByPath('payment.wepay.requestInfo.getWepayParamsUrl', dataConfig)
+const getTradeStateUrl = () => getPropByPath('payment.wepay.requestInfo.getTradeStateUrl', dataConfig)
 
 const getWepayParams = async ({ type, openid, goods, deviceInfo, attach }) => {
   let res
@@ -86,7 +86,7 @@ const wepay = async (wepayParams) => {
   console.log(`[${perf.now}][WepayPaymentData] wepay: wepayParams -> `, wepayParams)
   return new Promise((resolve, reject) => {
     try {
-      adaptMultiPlatform({
+      adaptMultipleEnvironments({
         webFn: () => {
           wxweb.chooseWXPay({
             timestamp: wepayParams.timestamp,

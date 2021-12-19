@@ -4,7 +4,7 @@
  * - LightSource
  */
 
-import { perf, get, throttle, packing } from '../libs/mobius-utils.js'
+import { perf, getPropByPath, throttle, packing } from '../libs/mobius-utils.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { THEME, isValidThemeMode, isValidThemeLightSource } from '../const/index.js'
 import { dataConfig } from '../config/index.js'
@@ -13,14 +13,14 @@ import { Biu } from '../libs/biu.js'
 const biu = Biu.scope('inner').biu
 
 // keep config fresh
-const localStorageKeyName = () => get(dataConfig, 'theme.localStorageKeyName')
+const localStorageKeyName = () => getPropByPath('theme.localStorageKeyName', dataConfig)
 const _getThemeFromLocal = () => getDataFromLocalStorage(localStorageKeyName()) || {}
 const _setThemeToLocal = theme => {
   setDataToLocalStorage(localStorageKeyName(), theme)
 }
 
-const getThemeUrl = () => get(dataConfig, 'theme.requestInfo.getThemeUrl')
-const setThemeUrl = () => get(dataConfig, 'theme.requestInfo.setThemeUrl')
+const getThemeUrl = () => getPropByPath('theme.requestInfo.getThemeUrl', dataConfig)
+const setThemeUrl = () => getPropByPath('theme.requestInfo.setThemeUrl', dataConfig)
 const getThemeFromServer = async () => {
   console.log(`[${perf.now}][ThemeData] getThemeFromServer: send a request...`)
   let res
@@ -78,7 +78,8 @@ const setThemeToServer = async changes => {
 
   return res
 }
-const setThemeToServerPacked = packing(setThemeToServer, 500)
+// const setThemeToServerPacked = packing(setThemeToServer, 500)
+const setThemeToServerPacked = setThemeToServer
 /*********************************************************
  *                          Mode
  * - 用户设置的主题 → LocalStorage

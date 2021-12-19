@@ -1,11 +1,11 @@
-import { perf, get, throttle } from '../libs/mobius-utils.js'
+import { perf, getPropByPath, throttle } from '../libs/mobius-utils.js'
 import { Biu } from '../libs/biu.js'
 import { dataConfig } from '../config/index.js'
 import { MPAPI_REQUEST_TYPES } from '../const/mp_api.const.js'
 
 const biu = Biu.scope('inner').biu
 
-const getAPITicketUrl = () => get(dataConfig, 'mp_api.requestInfo.getAPITicketUrl')
+const getAPITicketUrl = () => getPropByPath('mp_api.requestInfo.getAPITicketUrl', dataConfig)
 
 const getJsAPITicket = async () => {
   console.log(`[${perf.now}][MpAPIDate] getJsAPITicket: send a request...`)

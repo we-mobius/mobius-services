@@ -1,168 +1,277 @@
 import {
-  isString, isObject, isArray,
-  makeSuccessResponseF, makeFailResponseF,
+  isNil, isString, isPlainObject, isArray,
+  dataToResponse, makeFailResponse, isSuccessResponse,
+  isVacuo, isTerminator,
   Data, Mutation, TERMINATOR,
   replayWithLatest,
   pipeAtom,
-  createGeneralDriver, useGeneralDriver,
-  filterT, pluckT
+  createGeneralDriver, useGeneralDriver_,
+  filterT_, pluckT_
 } from '../../libs/mobius-utils'
 import {
   collectJavaScript, loadMultipleJavaScript
-} from '../../data/loader'
+} from '../../data/loader.data'
 
+import type {
+  SuccessResponse, FailResponse,
+  Terminator, ReplayDataMediator,
+  DriverOptions, DriverLevelContexts, DriverSingletonLevelContexts, DriverInstance
+} from '../../libs/mobius-utils'
+import type {
+  JavaScriptCollection, SingleJavaScriptLoadOptions,
+  SingleJavaScriptLoadResult, MultipleJavaScriptLoadResult
+} from '../../data/loader.data'
+
+type ScriptSrc = string
 /**
- * @param { object | array } options
  *   ```
  *     -> { src: 'https://example.com/target.js' }
  *     -> { src: 'https://example.com/target.js', group: 'example' }
  *     -> [{ src: 'https://example.com/target_0.js', group: 'example' }, 'https://example.com/target_1.js']
  *     -> { src: ['https://example.com/target_0.js', { src: 'https://example.com/target_1.js', group: 'example_0' }], group: 'example_1' }
  *   ```
- * @return { [{ src: string, group?: string }, ...] }
- *   ```
- *     -> [{ src: 'https://example.com/target_1.js', group?: 'example_0' }]
- *   ```
- *
  */
-const neatenOptions = options => {
-  const res = []
+export type JavaScriptLoadOptions
+  = SingleJavaScriptLoadOptions
+  | SingleJavaScriptLoadOptions[]
+  | Array<SingleJavaScriptLoadOptions | ScriptSrc>
+  | { src: Array<SingleJavaScriptLoadOptions | ScriptSrc> } & Omit<SingleJavaScriptLoadOptions, 'src'>
 
-  if (!isObject(options) && !isArray(options)) {
-    throw (new TypeError(`"options" is expected to be type of Object | Array, but received "${typeof options}".`))
+/**
+ * Neaten the `JavaScriptLoadOptions` to `SingleJavaScriptLoadOptions[]`.
+ */
+const neatenOptions = (options: JavaScriptLoadOptions): SingleJavaScriptLoadOptions[] => {
+  const res: SingleJavaScriptLoadOptions[] = []
+
+  if (!isPlainObject(options) && !isArray(options)) {
+    throw (new TypeError('"options" is expected to be type of "PlainObject" | "Array".'))
   }
 
-  if (isObject(options)) {
-    // const { name, src, group, collect, beforeLoad, onLoad, afterLoad, onError } = options
-    const { src } = options
-    delete options.src
-    if (!src) {
-      throw (new TypeError('"src" is required when "options" is of type Object.'))
-    }
-    if (!isString(src) && !isArray(src)) {
-      throw (new TypeError(`"src" is expected to be type of String | Array, but received "${typeof src}".`))
-    }
-    if (isString(src)) {
-      res.push({ src, ...options })
-    } else if (isArray(src)) {
-      src.forEach(item => {
-        if (!isObject(item) && !isString(item)) {
-          throw (new TypeError(`"item" is expected to be type of String | Array, but received "${typeof item}".`))
-        }
-        if (isObject(item)) {
-          res.push({ ...options, ...item })
-        } else if (isString(item)) {
-          res.push({ ...options, src: item })
-        }
-      })
-    }
-  } else if (isArray(options)) {
+  if (isArray(options)) {
     options.forEach(item => {
-      if (!isObject(item) && !isString(item)) {
-        throw (new TypeError(`"item" is expected to be type of String | Object, but received "${typeof item}".`))
+      if (!isPlainObject(item) && !isString(item)) {
+        throw (new TypeError('"item" is expected to be type of "String" | "PlainObject".'))
       }
-      if (isObject(item)) {
+      if (isPlainObject(item)) {
         res.push(item)
       } else if (isString(item)) {
         res.push({ src: item })
       }
     })
+  } else if (isPlainObject(options)) {
+    const { src, ...restOptions } = options
+    if (isNil(src)) {
+      throw (new TypeError('"src" is required when "options" is of type "PlainObject".'))
+    }
+    if (!isString(src) && !isArray(src)) {
+      throw (new TypeError('"src" is expected to be type of "String" | "Array".'))
+    }
+    if (isString(src)) {
+      res.push({ ...restOptions, src })
+    } else if (isArray(src)) {
+      src.forEach(item => {
+        if (!isPlainObject(item) && !isString(item)) {
+          throw (new TypeError('"item" is expected to be type of "String" | "Array".'))
+        }
+        if (isPlainObject(item)) {
+          res.push({ ...restOptions, ...item })
+        } else if (isString(item)) {
+          res.push({ ...restOptions, src: item })
+        }
+      })
+    }
   }
 
   return res
 }
-// 1. preserved groupname detect, etc. internal, external, newcome
-// 2. ...
-const checkOptions = options => {
+
+/**
+ * Check if the `JavaScriptLoadOptions` is valid.
+ *
+ * 1. preserved groupname detect, etc. internal, external, newcome
+ * 2. ...
+ */
+const checkOptions = (options: SingleJavaScriptLoadOptions[]): boolean => {
   // 1
   const preservedGroupnameList = ['internal', 'external', 'newcome']
-  return options.every(item => !preservedGroupnameList.includes(item.group))
+  return options.every(item => isNil(item.group) || (!isNil(item.group) && !preservedGroupnameList.includes(item.group)))
 }
 
-const mergeScriptCollections = (a, b) => {
-  if (isObject(a) && isObject(b)) {
-    Object.entries(a).forEach(([k, v]) => {
-      b[k] = b[k] || []
-      v.forEach(i => {
-        if (!b[k].some(s => s.element === i.element)) {
-          b[k].push(i)
+/**
+ * Merge source collection to target collection.
+ */
+const mergeScriptCollections = (source: Partial<JavaScriptCollection>, target: JavaScriptCollection): JavaScriptCollection => {
+  if (isPlainObject(source) && isPlainObject(target)) {
+    Object.entries(source).forEach(([k, v]) => {
+      target[k] = target[k] ?? []
+      v.forEach((i: { element: HTMLScriptElement }) => {
+        if (target[k].some((s: { element: HTMLScriptElement }) => s.element === i.element) === false) {
+          target[k].push(i)
         }
       })
     })
-    return b
+    return target
+  } else {
+    throw (new TypeError('"ScriptCollections" is expected to be type of "PlainObject".'))
   }
 }
 
-export const scriptLoaderDriver = createGeneralDriver({
+/************************************************************************************************
+ *
+ *                                           Main Types
+ *
+ ************************************************************************************************/
+
+interface SuccessLoadResult {
+  success: MultipleJavaScriptLoadResult['success']
+  collection: {
+    [key: string]: SingleJavaScriptLoadResult[]
+    newcome: SingleJavaScriptLoadResult[]
+  }
+}
+interface FailLoadResult {
+  fail: MultipleJavaScriptLoadResult['fail']
+}
+type SuccessLoadResponse = SuccessResponse<SuccessLoadResult>
+type FailLoadResponse = FailResponse<FailLoadResult>
+type LoadResponseUnion = SuccessLoadResponse | FailLoadResponse
+
+interface ScriptLoadDriverSingletonLevelContexts extends DriverSingletonLevelContexts {
+  inputs: {
+    javascript: Data<JavaScriptLoadOptions>
+  }
+  outputs: {
+    javascripts: ReplayDataMediator<JavaScriptCollection>
+    javascriptLoadResult: Data<LoadResponseUnion>
+  }
+}
+export interface ScriptLoadDriverInstance extends DriverInstance {
+  inputs: {
+    javascript: Data<JavaScriptLoadOptions>
+  }
+  outputs: {
+    javascripts: ReplayDataMediator<JavaScriptCollection>
+    javascriptLoadResult: Data<LoadResponseUnion>
+  }
+}
+
+/************************************************************************************************
+ *
+ *                                           Main Driver
+ *
+ ************************************************************************************************/
+
+/**
+ *
+ */
+export const makeScriptLoaderDriver =
+createGeneralDriver<DriverOptions, DriverLevelContexts, ScriptLoadDriverSingletonLevelContexts, ScriptLoadDriverInstance>({
   prepareSingletonLevelContexts: (options, driverLevelContexts) => {
-    const javascriptInD = Data.empty()
-    const loadJavascriptM = Mutation.ofLiftBoth((options, _, mutation) => {
-      // 将加载脚本的选项进行格式化
-      options = neatenOptions(options)
-      // 检查选项是否合理有效
-      if (!checkOptions(options)) {
-        throw (new TypeError('Preserved groupname received!'))
+    const javascriptInD = Data.empty<JavaScriptLoadOptions>()
+
+    interface PrivateData<V = any> {
+      type: symbol
+      value: V
+    }
+    const privateDataType = Symbol('privateData')
+    const isPrivateData = <V = any>(v: any): v is PrivateData<V> => v.type === privateDataType
+
+    const loadJavascriptM = Mutation.ofLiftBoth<JavaScriptLoadOptions | PrivateData<LoadResponseUnion>, LoadResponseUnion | Terminator>(
+      (prev, _, mutation) => {
+        if (isVacuo(prev)) return TERMINATOR
+
+        if (isPrivateData(prev)) {
+          return prev.value
+        }
+
+        // 将加载脚本的选项进行格式化
+        const neatedOptions = neatenOptions(prev)
+        // 检查选项是否合理有效
+        if (!checkOptions(neatedOptions)) {
+          throw (new TypeError('Preserved groupname received!'))
+        }
+
+        // 调用加载函数，执行加载逻辑，加载指定脚本
+        void loadMultipleJavaScript({ options: neatedOptions }).then(res => {
+          const { success, fail } = res
+          if (isArray(success) && success.length > 0) {
+            const collection: SuccessLoadResult['collection'] = { newcome: [] }
+            success.forEach(item => {
+              collection.newcome.push(item)
+              const originOptions = neatedOptions.find(i => i.src === item.src)!
+              const group = originOptions.group ?? 'default_group'
+              collection[group] = collection[group] ?? []
+              collection[group].push(item)
+            })
+            mutation!.mutate({
+              type: privateDataType,
+              value: dataToResponse({ success, collection })
+            })
+          }
+          if (isArray(fail) && fail.length > 0) {
+            mutation!.mutate({
+              type: privateDataType,
+              value: makeFailResponse({ statusMessage: 'Some of outer JavaScript fail to load', data: { fail } })
+            })
+          }
+        })
+        return TERMINATOR
       }
-      // 调用加载函数，执行加载逻辑，加载指定脚本
-      loadMultipleJavaScript({ options }).then(res => {
-        const { success, fail } = res
-        if (isArray(success) && success.length > 0) {
-          const collection = { newcome: [] }
-          success.forEach(item => {
-            collection.newcome.push(item)
-            const option = options.find(i => i.src === item.src)
-            const group = option.group || 'default_group'
-            collection[group] = collection[group] || []
-            collection[group].push(item)
-          })
-          mutation.triggerOperation(() => makeSuccessResponseF({ success, collection }))
-        }
-        if (isArray(fail) && fail.length > 0) {
-          mutation.triggerOperation(() => makeFailResponseF('Some of outer JavaScript fail to load', { fail }))
-        }
-      })
-      return TERMINATOR
-    })
-    const javascriptLoadResultD = Data.empty()
-    pipeAtom(javascriptInD, loadJavascriptM, javascriptLoadResultD)
+    )
+    const javascriptLoadResponseD = Data.empty<LoadResponseUnion>()
+    pipeAtom(javascriptInD, loadJavascriptM, javascriptLoadResponseD)
 
-    const successJavascriptD = javascriptLoadResultD.pipe(filterT(res => res.status === 'success'), pluckT('data'))
+    const successJavascriptD: Data<SuccessLoadResult> = javascriptLoadResponseD.pipe(filterT_(isSuccessResponse), pluckT_('data'))
 
-    const successToScriptsM = Mutation.ofLiftBoth(({ collection: newScripts }, scripts) => {
-      const { newcome = [], ...otherScripts } = newScripts
+    const successToScriptsM = Mutation.ofLiftBoth<SuccessLoadResult, JavaScriptCollection | Terminator>(
+      (prev, scripts) => {
+        if (isVacuo(prev)) return TERMINATOR
+        if (isTerminator(scripts)) return TERMINATOR
 
-      newcome.forEach(n => {
-        if (n.src && !scripts.external.some(i => i.element === n.element)) {
-          scripts.external.push(n)
-        }
-        if (!n.src && !scripts.internal.some(i => i.element === n.element)) {
-          scripts.internal.push(n)
-        }
-      })
+        const { collection: { newcome, ...otherScripts } } = prev
 
-      scripts.newcome = [...newcome]
-      const mergedScripts = mergeScriptCollections(otherScripts, scripts)
+        newcome.forEach(n => {
+          if (!isNil(n.src) && !scripts.external.some(i => i.element === n.element)) {
+            scripts.external.push(n)
+          }
+          if (isNil(n.src) && !scripts.internal.some(i => i.element === n.element)) {
+            scripts.internal.push(n)
+          }
+        })
 
-      return mergedScripts
-    })
+        scripts.newcome = [...newcome]
+        const mergedScripts = mergeScriptCollections(otherScripts, scripts)
+
+        return mergedScripts
+      }
+    )
+
     // { internal: [], external: [] }
-    const javascriptsRD = replayWithLatest(1, Data.of(collectJavaScript()))
-    pipeAtom(successJavascriptD, successToScriptsM, javascriptsRD)
+    const javascriptCollectionRD = replayWithLatest(1, Data.of(collectJavaScript()))
+    pipeAtom(successJavascriptD, successToScriptsM, javascriptCollectionRD)
 
     return {
       inputs: {
         javascript: javascriptInD
       },
       outputs: {
-        javascripts: javascriptsRD,
-        javascriptLoadResult: javascriptLoadResultD
+        javascripts: javascriptCollectionRD,
+        javascriptLoadResult: javascriptLoadResponseD
       }
     }
   },
   prepareInstance: (options, driverLevelContexts, singletonLevelContexts) => {
     const { inputs, outputs, ...others } = singletonLevelContexts
-    return { inputs: { ...singletonLevelContexts.inputs }, outputs: { ...singletonLevelContexts.outputs }, ...others }
+    const driverInstance = {
+      inputs: { ...singletonLevelContexts.inputs },
+      outputs: { ...singletonLevelContexts.outputs },
+      ...others
+    }
+    return driverInstance
   }
 })
 
-export const useScriptLoaderDriver = useGeneralDriver(scriptLoaderDriver)
+/**
+ * @see {@link makeScriptLoaderDriver}
+ */
+export const useScriptLoaderDriver = useGeneralDriver_(makeScriptLoaderDriver)

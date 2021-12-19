@@ -1,4 +1,4 @@
-import { perf, get } from '../libs/mobius-utils.js'
+import { perf, getPropByPath } from '../libs/mobius-utils.js'
 import { defaultConfig } from '../config/index.js'
 import { makeConfigObserver, configObservables } from '../drivers/config.driver.js'
 
@@ -42,6 +42,6 @@ const initConfig = configChanges => {
   )
 }
 
-const getConfig = path => get(defaultConfig, path)
+const getConfig = path => getPropByPath(path, defaultConfig)
 
 export { initConfig, makeConfigObserver, configObservables, getConfig }

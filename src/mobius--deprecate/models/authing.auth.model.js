@@ -1,4 +1,4 @@
-import { hardDeepMerge, deepCopy, isEmptyObj, emptifyObj } from '../libs/mobius-utils.js'
+import { deepMerge, deepCopy, isEmptyObj, emptifyObj } from '../libs/mobius-utils.js'
 import { authingAuthState } from '../config/index.js'
 import { reactive, effect } from '../libs/reactivity.js'
 
@@ -8,7 +8,7 @@ const changeAuthState = changes => {
   if (isEmptyObj(changes)) {
     emptifyObj(authStateProxy)
   } else {
-    hardDeepMerge(authStateProxy, changes)
+    deepMerge(authStateProxy, changes)
   }
   return deepCopy(authStateProxy)
 }

@@ -7,7 +7,7 @@
  *   - 保存在本地
  *   - 保存至服务端
  */
-import { get, deepCopy } from '../libs/mobius-utils.js'
+import { getPropByPath, deepCopy } from '../libs/mobius-utils.js'
 import { getDataFromLocalStorage, setDataToLocalStorage } from '../common/index.js'
 import { dataConfig, defaultConfig } from '../config/index.js'
 import { Biu } from '../libs/biu.js'
@@ -15,14 +15,14 @@ import { Biu } from '../libs/biu.js'
 const biu = Biu.scope('inner').biu
 
 // keep config fresh
-const localStorageKeyName = () => get(dataConfig, 'config.localStorageKeyName')
+const localStorageKeyName = () => getPropByPath('config.localStorageKeyName', dataConfig)
 const _getConfigFromLocal = () => getDataFromLocalStorage(localStorageKeyName) || {}
 const _setConfigToLocal = config => {
   setDataToLocalStorage(localStorageKeyName, config)
 }
 
-const getConfigUrl = () => get(dataConfig, 'config.requestInfo.getConfigUrl')
-const setConfigUrl = () => get(dataConfig, 'config.requestInfo.setConfigUrl')
+const getConfigUrl = () => getPropByPath('config.requestInfo.getConfigUrl', dataConfig)
+const setConfigUrl = () => getPropByPath('config.requestInfo.setConfigUrl', dataConfig)
 const getConfigFromServer = async () => {
   let res
   const url = getConfigUrl()

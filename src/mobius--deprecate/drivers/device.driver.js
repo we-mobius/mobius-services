@@ -1,4 +1,4 @@
-import { get } from '../libs/mobius-utils.js'
+import { getPropByPath } from '../libs/mobius-utils.js'
 import {
   Subject,
   combineLatest,
@@ -73,7 +73,7 @@ const observables = {
     let res$ = _observablesMap.get(path)
     if (!res$) {
       res$ = deviceInfoOutShareChunked$.pipe(
-        map(deviceInfoChunk => get(deviceInfoChunk, path)),
+        map(deviceInfoChunk => getPropByPath(path, deviceInfoChunk)),
         shareReplay(1)
       )
       _observablesMap.set(path, res$)
