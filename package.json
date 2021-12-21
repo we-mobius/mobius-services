@@ -174,11 +174,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@types/wechat-miniprogram": "^3.4.0",
-    "@vue/reactivity": "^3.0.0-beta.14",
-    "authing-js-sdk": "^3.20.1",
-    "axios": "^0.19.2",
-    "rxjs": "^6.5.5"
+    "@types/wechat-miniprogram": "^3.4.0"
   },
   "sideEffects": false
 }
