@@ -51,11 +51,13 @@ const parseDeviceGeoFromCloudflare = (text: string): DeviceGeoFromCloudflare => 
  */
 export const getDeviceGeoFromCloudflare = (): Biutor<DeviceGeoFromCloudflare> => {
   return Biutor.of({
-    url: 'https://www.cloudflare.com/cdn-cgi/trace',
+    resource: 'https://www.cloudflare.com/cdn-cgi/trace',
     method: 'GET',
+    responseType: 'text',
     dataType: 'custom',
     dataParser: parseDeviceGeoFromCloudflare,
-    withCredentials: false
+    mode: 'cors',
+    credentials: 'omit'
   }).sendRequest()
 }
 
