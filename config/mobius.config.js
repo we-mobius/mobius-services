@@ -6,7 +6,7 @@ export const CSS_CDN_ORIGIN = 'https://fonts.googleapis.cnpmjs.org/'
 const CSP_WHITE_LIST = 'https://*.unpkg.com https://*.jsdelivr.net https://*.cloudflare.com'
 
 const commonTemplate = {
-  title: 'Hello, Mobius JS!',
+  title: 'Hello, Mobius Services!',
   'meta-csp':
     `default-src 'self' ${CSP_WHITE_LIST};` +
     ` script-src 'self' 'unsafe-inline' 'unsafe-eval' ${CSP_WHITE_LIST};` +
