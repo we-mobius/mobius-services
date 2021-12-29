@@ -2,9 +2,16 @@ import {
   isNil, isString, isPlainObject, isArray, isFunction
 } from '../libs/mobius-utils'
 
+export interface JavaScriptCollectionInternalItem {
+  element: HTMLScriptElement
+}
+export interface JavaScriptCollectionExternalItem {
+  element: HTMLScriptElement
+  src: string
+}
 export interface JavaScriptCollection {
-  internal: Array<{ element: HTMLScriptElement }>
-  external: Array<{ element: HTMLScriptElement, src: string }>
+  internal: JavaScriptCollectionInternalItem[]
+  external: JavaScriptCollectionExternalItem[]
   [key: string]: any
 }
 

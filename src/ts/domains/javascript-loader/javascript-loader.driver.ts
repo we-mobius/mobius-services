@@ -35,12 +35,12 @@ export type JavaScriptLoadOptions
   = SingleJavaScriptLoadOptions
   | SingleJavaScriptLoadOptions[]
   | Array<SingleJavaScriptLoadOptions | ScriptSrc>
-  | { src: Array<SingleJavaScriptLoadOptions | ScriptSrc> } & Omit<SingleJavaScriptLoadOptions, 'src'>
+  | ({ src: Array<SingleJavaScriptLoadOptions | ScriptSrc> } & Omit<SingleJavaScriptLoadOptions, 'src'>)
 
 /**
  * Neaten the `JavaScriptLoadOptions` to `SingleJavaScriptLoadOptions[]`.
  */
-const neatenOptions = (options: JavaScriptLoadOptions): SingleJavaScriptLoadOptions[] => {
+export const neatenJavaScriptLoadOptions = (options: JavaScriptLoadOptions): SingleJavaScriptLoadOptions[] => {
   const res: SingleJavaScriptLoadOptions[] = []
 
   if (!isPlainObject(options) && !isArray(options)) {
@@ -138,20 +138,20 @@ type LoadResponseUnion = SuccessLoadResponse | FailLoadResponse
 
 interface ScriptLoadDriverSingletonLevelContexts extends DriverSingletonLevelContexts {
   inputs: {
-    javascript: Data<JavaScriptLoadOptions>
+    javascriptLoadOptions: Data<JavaScriptLoadOptions>
   }
   outputs: {
-    javascripts: ReplayDataMediator<JavaScriptCollection>
-    javascriptLoadResult: Data<LoadResponseUnion>
+    javascriptCollection: ReplayDataMediator<JavaScriptCollection>
+    javascriptLoadResponse: Data<LoadResponseUnion>
   }
 }
 export interface ScriptLoadDriverInstance extends DriverInstance {
   inputs: {
-    javascript: Data<JavaScriptLoadOptions>
+    javascriptLoadOptions: Data<JavaScriptLoadOptions>
   }
   outputs: {
-    javascripts: ReplayDataMediator<JavaScriptCollection>
-    javascriptLoadResult: Data<LoadResponseUnion>
+    javascriptCollection: ReplayDataMediator<JavaScriptCollection>
+    javascriptLoadResponse: Data<LoadResponseUnion>
   }
 }
 
@@ -167,7 +167,7 @@ export interface ScriptLoadDriverInstance extends DriverInstance {
 export const makeScriptLoaderDriver =
 createGeneralDriver<DriverOptions, DriverLevelContexts, ScriptLoadDriverSingletonLevelContexts, ScriptLoadDriverInstance>({
   prepareSingletonLevelContexts: (options, driverLevelContexts) => {
-    const javascriptInD = Data.empty<JavaScriptLoadOptions>()
+    const javascriptLoadOptionsInD = Data.empty<JavaScriptLoadOptions>()
 
     interface PrivateData<V = any> {
       type: symbol
@@ -185,7 +185,7 @@ createGeneralDriver<DriverOptions, DriverLevelContexts, ScriptLoadDriverSingleto
         }
 
         // 将加载脚本的选项进行格式化
-        const neatedOptions = neatenOptions(prev)
+        const neatedOptions = neatenJavaScriptLoadOptions(prev)
         // 检查选项是否合理有效
         if (!checkOptions(neatedOptions)) {
           throw (new TypeError('Preserved groupname received!'))
@@ -219,7 +219,7 @@ createGeneralDriver<DriverOptions, DriverLevelContexts, ScriptLoadDriverSingleto
       }
     )
     const javascriptLoadResponseD = Data.empty<LoadResponseUnion>()
-    pipeAtom(javascriptInD, loadJavascriptM, javascriptLoadResponseD)
+    pipeAtom(javascriptLoadOptionsInD, loadJavascriptM, javascriptLoadResponseD)
 
     const successJavascriptD: Data<SuccessLoadResult> = javascriptLoadResponseD.pipe(filterT_(isSuccessResponse), pluckT_('data'))
 
@@ -252,11 +252,11 @@ createGeneralDriver<DriverOptions, DriverLevelContexts, ScriptLoadDriverSingleto
 
     return {
       inputs: {
-        javascript: javascriptInD
+        javascriptLoadOptions: javascriptLoadOptionsInD
       },
       outputs: {
-        javascripts: javascriptCollectionRD,
-        javascriptLoadResult: javascriptLoadResponseD
+        javascriptCollection: javascriptCollectionRD,
+        javascriptLoadResponse: javascriptLoadResponseD
       }
     }
   },
