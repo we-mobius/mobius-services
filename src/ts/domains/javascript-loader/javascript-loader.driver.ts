@@ -198,8 +198,8 @@ createGeneralDriver<DriverOptions, DriverLevelContexts, ScriptLoadDriverSingleto
             const collection: SuccessLoadResult['collection'] = { newcome: [] }
             success.forEach(item => {
               collection.newcome.push(item)
-              const originOptions = neatedOptions.find(i => i.src === item.src)!
-              const group = originOptions.group ?? 'default_group'
+              const originalOptions = neatedOptions.find(i => i.src === item.src)!
+              const group = originalOptions.group ?? 'default_group'
               collection[group] = collection[group] ?? []
               collection[group].push(item)
             })
