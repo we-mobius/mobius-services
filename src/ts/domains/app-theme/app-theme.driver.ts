@@ -25,7 +25,7 @@ export interface AppThemeDriverOptions extends DriverOptions {
    *
    * @default true
    */
-  isAutoToggle?: boolean
+  enableAutoToggle?: boolean
   /**
     * Whether the 'unknown' color scheme or other theme item is expected.
     *   If false, the 'unknown' value will be warned.
@@ -54,7 +54,7 @@ export interface AppThemeDriverSingletonLevelContexts extends DriverSingletonLev
 export interface AppThemeDriverInstance extends AppThemeDriverSingletonLevelContexts { }
 
 export const DEFAULT_APP_THEME_DRIVER_OPTIONS: Required<AppThemeDriverOptions> = {
-  isAutoToggle: true,
+  enableAutoToggle: true,
   isExpectUnknown: false,
   initPreferredColorScheme: AppThemePreferredColorScheme.Unknown,
   initPreferredLightSource: AppThemePreferredLightSource.Unknown,
@@ -78,12 +78,12 @@ export const makeAppThemeDriver =
       const preferredLightSourceRD = replayWithLatest(1, pluckT<AppTheme, AppThemePreferredLightSource>('preferredLightSource', themeRD))
 
       const {
-        isAutoToggle, isExpectUnknown,
+        enableAutoToggle, isExpectUnknown,
         initPreferredColorScheme, initPreferredLightSource,
         preferredColorSchemeClue, preferredLightSourceClue
       } = { ...DEFAULT_APP_THEME_DRIVER_OPTIONS, ...options }
 
-      const preferredColorScheme = isAutoToggle
+      const preferredColorScheme = enableAutoToggle
         ? [
             getPreferredColorSchemeFromMedia(),
             getPreferredColorSchemeFromDOM(...preferredColorSchemeClue),
@@ -107,7 +107,7 @@ export const makeAppThemeDriver =
 
       themeRD.mutate(() => ({ ...themeRD.value, preferredLightSource: preferredLightSource }))
 
-      if (isAutoToggle) {
+      if (enableAutoToggle) {
         adaptMultipleEnvironments({
           forWeb: () => {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
