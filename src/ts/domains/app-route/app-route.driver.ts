@@ -9,6 +9,7 @@ import {
 import { AppRouteManager } from './app-route__app-route-manager.model'
 
 import type {
+  AtomLikeOfOutput,
   ReplayDataMediator,
   DriverOptions, DriverLevelContexts, DriverSingletonLevelContexts, DriverInstance
 } from '../../libs/mobius-utils'
@@ -47,6 +48,10 @@ export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLev
     currentRoute: ReplayDataMediator<Route>
     currentRouteRecord: ReplayDataMediator<RouteRecord>
   }
+  contexts: {
+    processT: typeof routeRecordProcessT
+    processT_: typeof routeRecordProcessT_
+  }
 }
 export interface AppRouteDriverInstance extends DriverInstance {
   inputs: {
@@ -70,6 +75,10 @@ export interface AppRouteDriverInstance extends DriverInstance {
     roamingState: ReplayDataMediator<AppRouteManagerRoamingState>
     currentRoute: ReplayDataMediator<Route>
     currentRouteRecord: ReplayDataMediator<RouteRecord>
+  }
+  contexts: {
+    processT: typeof routeRecordProcessT
+    processT_: typeof routeRecordProcessT_
   }
 }
 
@@ -170,7 +179,8 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
         currentRouteRecord: currentRouteRecordRD
       },
       contexts: {
-        processT: processT_
+        processT: routeRecordProcessT,
+        processT_: routeRecordProcessT_
       }
     }
   },
@@ -185,12 +195,12 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
  */
 export const useAppRouteDriver = useGeneralDriver_(makeAppRouteDriver)
 
-interface ProcessOptions {
+export interface RouteRecordProcessOptions {
   isDistinct?: boolean
   level?: number
   defaultTo?: string
 }
-const DEFAULT_PROCESS_OPTIONS: ProcessOptions = {
+export const DEFAULT_PROCESS_OPTIONS: RouteRecordProcessOptions = {
   isDistinct: true,
   level: undefined,
   defaultTo: undefined
@@ -199,7 +209,7 @@ const DEFAULT_PROCESS_OPTIONS: ProcessOptions = {
 /**
  *
  */
-const processT = createArrayMSTache<[ProcessOptions, RouteRecord], string, true, 'partly', 'left'>({
+const routeRecordProcessT = createArrayMSTache<[RouteRecordProcessOptions, RouteRecord], string, true, 'partly', 'left'>({
   acceptNonAtom: true,
   customizeType: 'partly',
   options: { lift: { position: 'left' } },
@@ -254,7 +264,16 @@ const processT = createArrayMSTache<[ProcessOptions, RouteRecord], string, true,
   }
 })
 
+interface IRouteRecordProcessT_ {
+  (
+    options: RouteRecordProcessOptions | AtomLikeOfOutput<RouteRecordProcessOptions>,
+    routeRecord: RouteRecord | AtomLikeOfOutput<RouteRecord>
+  ): string
+  (
+    options: RouteRecordProcessOptions | AtomLikeOfOutput<RouteRecordProcessOptions>
+  ): (routeRecord: RouteRecord | AtomLikeOfOutput<RouteRecord>) => string
+}
 /**
- * @see {@link processT}
+ * @see {@link routeRecordProcessT}
  */
-const processT_ = looseCurryN(2, processT)
+const routeRecordProcessT_: IRouteRecordProcessT_ = looseCurryN(2, routeRecordProcessT)
