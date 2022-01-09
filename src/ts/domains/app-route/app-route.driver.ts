@@ -29,14 +29,14 @@ export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLev
   inputs: {
     options: Data<AppRouteDriverOptions>
     route: Data<AppRouteManagerRouteOptions>
-    navigate: Data<AppRouteManagerNavigateOptions>
-    redirect: Data<AppRouteManagerRedirectOptions>
+    navigate: Data<AppRouteManagerNavigateOptions | string>
+    redirect: Data<AppRouteManagerRedirectOptions | string>
     refresh: Data<AppRouteManagerRefreshOptions>
-    roaming: Data<AppRouteManagerRoamingOptions>
-    forward: Data<AppRouteManagerForwardOptions>
-    backward: Data<AppRouteManagerBackwardOptions>
-    query: Data<AppRouteManagerQueryOptions>
-    hash: Data<AppRouteManagerHashOptions>
+    roaming: Data<AppRouteManagerRoamingOptions | number>
+    forward: Data<AppRouteManagerForwardOptions | number>
+    backward: Data<AppRouteManagerBackwardOptions| number>
+    query: Data<AppRouteManagerQueryOptions | string>
+    hash: Data<AppRouteManagerHashOptions | string>
   }
   outputs: {
     options: ReplayDataMediator<AppRouteDriverOptions>
@@ -57,14 +57,14 @@ export interface AppRouteDriverInstance extends DriverInstance {
   inputs: {
     options: Data<AppRouteDriverOptions>
     route: Data<AppRouteManagerRouteOptions>
-    navigate: Data<AppRouteManagerNavigateOptions>
-    redirect: Data<AppRouteManagerRedirectOptions>
+    navigate: Data<AppRouteManagerNavigateOptions | string>
+    redirect: Data<AppRouteManagerRedirectOptions | string>
     refresh: Data<AppRouteManagerRefreshOptions>
-    roaming: Data<AppRouteManagerRoamingOptions>
-    forward: Data<AppRouteManagerForwardOptions>
-    backward: Data<AppRouteManagerBackwardOptions>
-    query: Data<AppRouteManagerQueryOptions>
-    hash: Data<AppRouteManagerHashOptions>
+    roaming: Data<AppRouteManagerRoamingOptions | number>
+    forward: Data<AppRouteManagerForwardOptions | number>
+    backward: Data<AppRouteManagerBackwardOptions| number>
+    query: Data<AppRouteManagerQueryOptions | string>
+    hash: Data<AppRouteManagerHashOptions | string>
   }
   outputs: {
     options: ReplayDataMediator<AppRouteDriverOptions>
@@ -91,14 +91,14 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
     const appRouteManager = new AppRouteManager({})
 
     const routeInD = Data.empty<AppRouteManagerRouteOptions>()
-    const navigateInD = Data.empty<AppRouteManagerNavigateOptions>()
-    const redirectInD = Data.empty<AppRouteManagerRedirectOptions>()
+    const navigateInD = Data.empty<AppRouteManagerNavigateOptions | string>()
+    const redirectInD = Data.empty<AppRouteManagerRedirectOptions | string>()
     const refreshInD = Data.empty<AppRouteManagerRefreshOptions>()
-    const roamingInD = Data.empty<AppRouteManagerRoamingOptions>()
-    const forwardInD = Data.empty<AppRouteManagerForwardOptions>()
-    const backwardInD = Data.empty<AppRouteManagerBackwardOptions>()
-    const queryInD = Data.empty<AppRouteManagerQueryOptions>()
-    const hashInD = Data.empty<AppRouteManagerHashOptions>()
+    const roamingInD = Data.empty<AppRouteManagerRoamingOptions | number>()
+    const forwardInD = Data.empty<AppRouteManagerForwardOptions | number>()
+    const backwardInD = Data.empty<AppRouteManagerBackwardOptions| number>()
+    const queryInD = Data.empty<AppRouteManagerQueryOptions | string>()
+    const hashInD = Data.empty<AppRouteManagerHashOptions | string>()
 
     const directivesRD = replayWithLatest(1, Data.empty<AppRouteManagerDirectives>())
     const historyRD = replayWithLatest(1, Data.empty<AppRouteManagerHistory>())

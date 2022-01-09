@@ -76,22 +76,22 @@ export interface AppRouteManagerRoamingOptions {
 export interface AppRouteManagerForwardOptions {
   type?: AppRouteType.forward
   trace?: AppRouteManagerRouteTrace
-  step: number
+  step?: number
 }
 export interface AppRouteManagerBackwardOptions {
   type?: AppRouteType.backward
   trace?: AppRouteManagerRouteTrace
-  step: number
+  step?: number
 }
 export interface AppRouteManagerQueryOptions {
   type?: AppRouteType.query
   trace?: AppRouteManagerRouteTrace
-  query: string
+  query?: string
 }
 export interface AppRouteManagerHashOptions {
   type?: AppRouteType.hash
   trace?: AppRouteManagerRouteTrace
-  hash: string
+  hash?: string
 }
 type AppRouteManagerRouteOptionsUnion
   = AppRouteManagerNavigateOptions
@@ -289,18 +289,32 @@ export class AppRouteManager {
 
   /**
     * navigate 方法会在栈中推入一条新的记录
+    *
+    * @param path - Default to `''`.
     */
-  navigate (options: AppRouteManagerNavigateOptions): this {
-    const { route, path, trace } = options
-    const newTrace = this._traceRoute(trace, { type: AppRouteType.navigate, options })
-    const directive = { ...options, trace: newTrace, type: AppRouteType.navigate }
+  navigate (path: string): this
+  navigate (options: AppRouteManagerNavigateOptions): this
+  navigate (options: AppRouteManagerNavigateOptions | string): this
+  navigate (options: AppRouteManagerNavigateOptions | string): this {
+    let preparedOptions: AppRouteManagerNavigateOptions & { path: string }
+    if (isString(options)) {
+      preparedOptions = { path: options }
+    } else if (isPlainObject(options)) {
+      preparedOptions = { path: '', ...options }
+    } else {
+      throw (new TypeError('"options" is expected to be type of "String" or "PlainObject".'))
+    }
+
+    const { route, path, trace } = preparedOptions
+    const newTrace = this._traceRoute(trace, { type: AppRouteType.navigate, options: preparedOptions })
+    const directive = { ...preparedOptions, trace: newTrace, type: AppRouteType.navigate }
 
     if (route === undefined && path === undefined) {
       throw (new TypeError('One of "route" or "path" is required at least.'))
     }
 
     const fromRoute = this._getCurrentRoute()
-    const toRoute = this.parseRoute(route ?? path!)
+    const toRoute = this.parseRoute(route ?? path)
 
     const historyItem = { directive, fromRoute, toRoute }
 
@@ -313,18 +327,32 @@ export class AppRouteManager {
 
   /**
     * redirect 方法会移除栈中的当前记录，并推入一条新的记录
+    *
+    * @param path - Default to `''`.
     */
-  redirect (options: AppRouteManagerRedirectOptions): this {
-    const { route, path, trace } = options
-    const newTrace = this._traceRoute(trace, { type: AppRouteType.redirect, options })
-    const directive = { ...options, trace: newTrace, type: AppRouteType.redirect }
+  redirect (path: string): this
+  redirect (options: AppRouteManagerRedirectOptions): this
+  redirect (options: AppRouteManagerRedirectOptions | string): this
+  redirect (options: AppRouteManagerRedirectOptions | string): this {
+    let preparedOptions: AppRouteManagerRedirectOptions & { path: string }
+    if (isString(options)) {
+      preparedOptions = { path: options }
+    } else if (isPlainObject(options)) {
+      preparedOptions = { path: '', ...options }
+    } else {
+      throw (new TypeError('"options" is expected to be type of "String" or "PlainObject".'))
+    }
+
+    const { route, path, trace } = preparedOptions
+    const newTrace = this._traceRoute(trace, { type: AppRouteType.redirect, options: preparedOptions })
+    const directive = { ...preparedOptions, trace: newTrace, type: AppRouteType.redirect }
 
     if (route === undefined && path === undefined) {
       throw (new TypeError('One of "route" or "path" is required at least.'))
     }
 
     const fromRoute = this._getCurrentRoute()
-    const toRoute = this.parseRoute(route ?? path!)
+    const toRoute = this.parseRoute(route ?? path)
 
     const historyItem = { directive, fromRoute, toRoute }
 
@@ -338,10 +366,20 @@ export class AppRouteManager {
   /**
     * refresh 会移除栈中的当前记录，并将其重新推入栈中
     */
-  refresh (options: AppRouteManagerRefreshOptions): this {
-    const { trace } = options
-    const newTrace = this._traceRoute(trace, { type: AppRouteType.refresh, options })
-    const directive = { ...options, trace: newTrace, type: AppRouteType.refresh }
+  refresh (): this
+  refresh (options: AppRouteManagerRefreshOptions): this
+  refresh (options: any): this
+  refresh (options: any = {}): this {
+    let preparedOptions: AppRouteManagerRefreshOptions
+    if (isPlainObject(options)) {
+      preparedOptions = { ...options }
+    } else {
+      preparedOptions = {}
+    }
+
+    const { trace } = preparedOptions
+    const newTrace = this._traceRoute(trace, { type: AppRouteType.refresh, options: preparedOptions })
+    const directive = { ...preparedOptions, trace: newTrace, type: AppRouteType.refresh }
 
     const fromRoute = this._getCurrentRoute()
     const toRoute = fromRoute
@@ -357,12 +395,15 @@ export class AppRouteManager {
     return this
   }
 
+  roaming (step: number): this
+  roaming (options: AppRouteManagerRoamingOptions): this
+  roaming (options: AppRouteManagerRoamingOptions | number): this
   roaming (options: AppRouteManagerRoamingOptions | number): this {
     let preparedOptions: AppRouteManagerRoamingOptions
-    if (isPlainObject(options)) {
-      preparedOptions = options
-    } else if (isNumber(options)) {
+    if (isNumber(options)) {
       preparedOptions = { step: options }
+    } else if (isPlainObject(options)) {
+      preparedOptions = { ...options }
     } else {
       throw (new TypeError('"options" is expected to be type of "PlainObject" or "Number".'))
     }
@@ -395,16 +436,22 @@ export class AppRouteManager {
     }
   }
 
-  forward (options: AppRouteManagerForwardOptions | number | undefined | null): this {
-    let preparedOptions: AppRouteManagerForwardOptions
-    if (isNil(options)) {
-      preparedOptions = { step: 1 }
-    } else if (isNumber(options)) {
+  /**
+   * @param step - Default to `1`.
+   */
+  forward (): this
+  forward (step: number): this
+  forward (options: AppRouteManagerForwardOptions): this
+  forward (options: AppRouteManagerForwardOptions | number): this
+  forward (options: any): this
+  forward (options: any = 1): this {
+    let preparedOptions: AppRouteManagerForwardOptions & { step: number }
+    if (isNumber(options)) {
       preparedOptions = { step: options }
     } else if (isPlainObject(options)) {
-      preparedOptions = options
+      preparedOptions = { step: 1, ...options }
     } else {
-      throw (new TypeError('"options" is expected to be type of "PlainObject" or "Number", or "Nil".'))
+      preparedOptions = { step: 1 }
     }
     preparedOptions.step = Math.abs(parseInt(String(preparedOptions.step)))
     if (Number.isNaN(preparedOptions.step)) {
@@ -418,16 +465,22 @@ export class AppRouteManager {
     return this.roaming({ step, trace: newTrace })
   }
 
-  backward (options: AppRouteManagerBackwardOptions | number | undefined | null): this {
-    let preparedOptions: AppRouteManagerBackwardOptions
-    if (isNil(options)) {
-      preparedOptions = { step: -1 }
-    } else if (isNumber(options)) {
+  /**
+   * @param step - Default to `-1`.
+   */
+  backward (): this
+  backward (step: number): this
+  backward (options: AppRouteManagerBackwardOptions): this
+  backward (options: AppRouteManagerBackwardOptions | number): this
+  backward (options: any): this
+  backward (options: any = -1): this {
+    let preparedOptions: AppRouteManagerBackwardOptions & { step: number }
+    if (isNumber(options)) {
       preparedOptions = { step: options }
     } else if (isPlainObject(options)) {
-      preparedOptions = options
+      preparedOptions = { step: -1, ...options }
     } else {
-      throw (new TypeError('"options" is expected to be type of "PlainObject" or "Number", or "Nil".'))
+      preparedOptions = { step: -1 }
     }
     preparedOptions.step = -Math.abs(parseInt(String(preparedOptions.step)))
     if (Number.isNaN(preparedOptions.step)) {
@@ -441,14 +494,21 @@ export class AppRouteManager {
     return this.roaming({ step, trace: newTrace })
   }
 
-  query (options: AppRouteManagerQueryOptions | string | undefined | null): this {
-    let preparedOptions: AppRouteManagerQueryOptions
+  /**
+   * @param query - Default to `''`.
+   */
+  query (): this
+  query (query: string): this
+  query (options: AppRouteManagerQueryOptions): this
+  query (options: AppRouteManagerQueryOptions | string): this
+  query (options: AppRouteManagerQueryOptions | string = ''): this {
+    let preparedOptions: AppRouteManagerQueryOptions & { query: string }
     if (isNil(options)) {
       preparedOptions = { query: '' }
     } else if (isString(options)) {
       preparedOptions = { query: options }
     } else if (isPlainObject(options)) {
-      preparedOptions = options
+      preparedOptions = { query: '', ...options }
     } else {
       throw (new TypeError('"options" is expected to be type of "PlainObject" or "String", or "Nil".'))
     }
@@ -462,14 +522,21 @@ export class AppRouteManager {
     return this.navigate({ route: toRoute, trace: newTrace })
   }
 
-  hash (options: AppRouteManagerHashOptions | string | undefined | null): this {
-    let preparedOptions: AppRouteManagerHashOptions
+  /**
+   * @param hash - Default to `''`.
+   */
+  hash (): this
+  hash (hash: string): this
+  hash (options: AppRouteManagerHashOptions): this
+  hash (options: AppRouteManagerHashOptions | string): this
+  hash (options: AppRouteManagerHashOptions | string = ''): this {
+    let preparedOptions: AppRouteManagerHashOptions & { hash: string }
     if (isNil(options)) {
       preparedOptions = { hash: '' }
     } else if (isString(options)) {
       preparedOptions = { hash: options }
     } else if (isPlainObject(options)) {
-      preparedOptions = options
+      preparedOptions = { hash: '', ...options }
     } else {
       throw (new TypeError('"options" is expected to be type of "PlainObject" or "String", or "Nil".'))
     }
