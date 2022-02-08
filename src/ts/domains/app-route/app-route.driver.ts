@@ -18,7 +18,7 @@ import type {
   AppRouteManagerRouteOptions, AppRouteManagerNavigateOptions, AppRouteManagerRedirectOptions, AppRouteManagerRefreshOptions,
   AppRouteManagerRoamingOptions, AppRouteManagerForwardOptions, AppRouteManagerBackwardOptions,
   AppRouteManagerQueryOptions, AppRouteManagerHashOptions,
-  AppRouteManagerDirectives, AppRouteManagerHistory, AppRouteManagerStack, AppRouteManagerRoamingState
+  AppRouteManagerDirectives, AppRouteManagerHistoryItem, AppRouteManagerHistory, AppRouteManagerStack, AppRouteManagerRoamingState
 } from './app-route__app-route-manager.model'
 import type {
   Route, RouteRecord
@@ -42,6 +42,7 @@ export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLev
     options: ReplayDataMediator<AppRouteDriverOptions>
     directives: ReplayDataMediator<AppRouteManagerDirectives>
     history: ReplayDataMediator<AppRouteManagerHistory>
+    currentHistoryItem: ReplayDataMediator<AppRouteManagerHistoryItem>
     stack: ReplayDataMediator<AppRouteManagerStack>
     stackRecord: ReplayDataMediator<RouteRecord[]>
     roamingState: ReplayDataMediator<AppRouteManagerRoamingState>
@@ -49,8 +50,10 @@ export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLev
     currentRouteRecord: ReplayDataMediator<RouteRecord>
   }
   contexts: {
-    processT: typeof routeRecordProcessT
-    processT_: typeof routeRecordProcessT_
+    routeRecordProcessT: typeof routeRecordProcessT
+    routeRecordProcessT_: typeof routeRecordProcessT_
+    historyItemProcessT: typeof historyItemProcessT
+    historyItemProcessT_: typeof historyItemProcessT_
   }
 }
 export interface AppRouteDriverInstance extends DriverInstance {
@@ -70,6 +73,7 @@ export interface AppRouteDriverInstance extends DriverInstance {
     options: ReplayDataMediator<AppRouteDriverOptions>
     directives: ReplayDataMediator<AppRouteManagerDirectives>
     history: ReplayDataMediator<AppRouteManagerHistory>
+    currentHistoryItem: ReplayDataMediator<AppRouteManagerHistoryItem>
     stack: ReplayDataMediator<AppRouteManagerStack>
     stackRecord: ReplayDataMediator<RouteRecord[]>
     roamingState: ReplayDataMediator<AppRouteManagerRoamingState>
@@ -77,8 +81,10 @@ export interface AppRouteDriverInstance extends DriverInstance {
     currentRouteRecord: ReplayDataMediator<RouteRecord>
   }
   contexts: {
-    processT: typeof routeRecordProcessT
-    processT_: typeof routeRecordProcessT_
+    routeRecordProcessT: typeof routeRecordProcessT
+    routeRecordProcessT_: typeof routeRecordProcessT_
+    historyItemProcessT: typeof historyItemProcessT
+    historyItemProcessT_: typeof historyItemProcessT_
   }
 }
 
@@ -102,6 +108,7 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
 
     const directivesRD = replayWithLatest(1, Data.empty<AppRouteManagerDirectives>())
     const historyRD = replayWithLatest(1, Data.empty<AppRouteManagerHistory>())
+    const currentHistoryItemRD = replayWithLatest(1, Data.empty<AppRouteManagerHistoryItem>())
     const stackRD = replayWithLatest(1, Data.empty<AppRouteManagerStack>())
     const stackRecordRD = replayWithLatest(1, Data.empty<RouteRecord[]>())
     const roamingStateRD = replayWithLatest(1, Data.empty<AppRouteManagerRoamingState>())
@@ -111,6 +118,7 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
     const emit = (): void => {
       directivesRD.mutate(() => appRouteManager.directives)
       historyRD.mutate(() => appRouteManager.history)
+      currentHistoryItemRD.mutate(() => appRouteManager.history[appRouteManager.history.length - 1])
       stackRD.mutate(() => appRouteManager.stack)
       stackRecordRD.mutate(() => appRouteManager.stackRecord)
       roamingStateRD.mutate(() => appRouteManager.roamingState)
@@ -172,6 +180,7 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
         options: optionsRD,
         directives: directivesRD,
         history: historyRD,
+        currentHistoryItem: currentHistoryItemRD,
         stack: stackRD,
         stackRecord: stackRecordRD,
         roamingState: roamingStateRD,
@@ -179,8 +188,10 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
         currentRouteRecord: currentRouteRecordRD
       },
       contexts: {
-        processT: routeRecordProcessT,
-        processT_: routeRecordProcessT_
+        routeRecordProcessT: routeRecordProcessT,
+        routeRecordProcessT_: routeRecordProcessT_,
+        historyItemProcessT: historyItemProcessT,
+        historyItemProcessT_: historyItemProcessT_
       }
     }
   },
@@ -200,7 +211,7 @@ export interface RouteRecordProcessOptions {
   level?: number
   defaultTo?: string
 }
-export const DEFAULT_PROCESS_OPTIONS: RouteRecordProcessOptions = {
+export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS: RouteRecordProcessOptions = {
   isDistinct: true,
   level: undefined,
   defaultTo: undefined
@@ -231,7 +242,7 @@ const routeRecordProcessT = createArrayMSTache<[RouteRecordProcessOptions, Route
     if (key === 1) {
       const {
         isDistinct, level, defaultTo
-      } = { ...DEFAULT_PROCESS_OPTIONS, ...values[0]! }
+      } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS, ...values[0]! }
       const route = values[1]!
 
       let preparedRoute: string | undefined
@@ -277,3 +288,62 @@ interface IRouteRecordProcessT_ {
  * @see {@link routeRecordProcessT}
  */
 const routeRecordProcessT_: IRouteRecordProcessT_ = looseCurryN(2, routeRecordProcessT)
+
+export interface HistoryItemProcessOptions {
+  filter?: (historyItem: AppRouteManagerHistoryItem) => boolean
+  mapper?: (historyItem: AppRouteManagerHistoryItem) => any
+}
+export const DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS: Required<HistoryItemProcessOptions> = {
+  filter: () => true,
+  mapper: historyItem => historyItem
+}
+
+/**
+ *
+ */
+const historyItemProcessT = createArrayMSTache<[HistoryItemProcessOptions, AppRouteManagerHistoryItem], any, true, 'partly', 'left'>({
+  acceptNonAtom: true,
+  customizeType: 'partly',
+  options: { lift: { position: 'left' } },
+  sourcesType: 'array',
+  transformation: (prev, cur, mutation, contexts) => {
+    if (isVacuo(prev)) return TERMINATOR
+    if (isVacuo(prev.value)) return TERMINATOR
+
+    const { states, values } = contexts
+    const { key } = prev
+    if (!states[0] || !states[1]) {
+      return TERMINATOR
+    }
+    if (key === 0) {
+      return TERMINATOR
+    }
+    if (key === 1) {
+      const { filter, mapper } = { ...DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS, ...values[0]! }
+
+      const filterResult = filter(values[1]!)
+      if (!filterResult) {
+        return TERMINATOR
+      }
+
+      const mapperResult = mapper(values[1]!)
+      return mapperResult
+    }
+
+    throw (new TypeError('Unexpected key!'))
+  }
+})
+
+interface IHistoryItemProcessT_ {
+  (
+    options: HistoryItemProcessOptions | AtomLikeOfOutput<HistoryItemProcessOptions>,
+    historyItem: AppRouteManagerHistoryItem | AtomLikeOfOutput<AppRouteManagerHistoryItem>
+  ): any
+  (
+    options: HistoryItemProcessOptions | AtomLikeOfOutput<HistoryItemProcessOptions>
+  ): (historyItem: AppRouteManagerHistoryItem | AtomLikeOfOutput<AppRouteManagerHistoryItem>) => any
+}
+/**
+ * @see {@link historyItemProcessT}
+ */
+const historyItemProcessT_: IHistoryItemProcessT_ = looseCurryN(2, historyItemProcessT)

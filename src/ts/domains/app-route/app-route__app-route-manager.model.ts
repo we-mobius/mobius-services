@@ -112,12 +112,12 @@ type AppRouteManagerRouteTrace = AppRouteManagerRouteTraceClue[]
 type AppRouteManagerDirective = Omit<AppRouteManagerRouteOptionsUnion, 'type'> & { type: AppRouteType, trace: AppRouteManagerRouteTrace }
 export type AppRouteManagerDirectives = AppRouteManagerDirective[]
 
-interface AppRouteManagerHistoryRecord {
+export interface AppRouteManagerHistoryItem {
   directive: AppRouteManagerDirective
   fromRoute: Route
   toRoute: Route
 }
-export type AppRouteManagerHistory = AppRouteManagerHistoryRecord[]
+export type AppRouteManagerHistory = AppRouteManagerHistoryItem[]
 
 export type AppRouteManagerStack = Route[]
 
@@ -220,7 +220,7 @@ export class AppRouteManager {
     return this
   }
 
-  private _addHistory (history: AppRouteManagerHistoryRecord): this {
+  private _addHistory (history: AppRouteManagerHistoryItem): this {
     this._history.push(history)
 
     return this

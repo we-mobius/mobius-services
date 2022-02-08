@@ -263,4 +263,70 @@ export class Route {
     this.correctPartialUrl()
     return this
   }
+
+  static distinctByPartialUrl (routeA: Route | RouteRecord, routeB: Route | RouteRecord): boolean {
+    const routeRecordA = isRoute(routeA) ? routeA.value : routeA
+    const routeRecordB = isRoute(routeB) ? routeB.value : routeB
+    return routeRecordA.partialUrl !== routeRecordB.partialUrl
+  }
+
+  static distinctByPath (routeA: Route | RouteRecord, routeB: Route | RouteRecord): boolean {
+    const routeRecordA = isRoute(routeA) ? routeA.value : routeA
+    const routeRecordB = isRoute(routeB) ? routeB.value : routeB
+    return routeRecordA.pathStr !== routeRecordB.pathStr
+  }
+
+  static distinctBySearch (routeA: Route | RouteRecord, routeB: Route | RouteRecord): boolean {
+    const routeRecordA = isRoute(routeA) ? routeA.value : routeA
+    const routeRecordB = isRoute(routeB) ? routeB.value : routeB
+    return routeRecordA.search !== routeRecordB.search
+  }
+
+  static distinctByQuery (routeA: Route| RouteRecord, routeB: Route| RouteRecord): boolean {
+    const routeRecordA = isRoute(routeA) ? routeA.value : routeA
+    const routeRecordB = isRoute(routeB) ? routeB.value : routeB
+    return routeRecordA.queryStr !== routeRecordB.queryStr
+  }
+
+  static distinctByHash (routeA: Route| RouteRecord, routeB: Route | RouteRecord): boolean {
+    const routeRecordA = isRoute(routeA) ? routeA.value : routeA
+    const routeRecordB = isRoute(routeB) ? routeB.value : routeB
+    return routeRecordA.hashStr !== routeRecordB.hashStr
+  }
+
+  isDistinctByPartialUrlFrom (route: Route | RouteRecord): boolean {
+    const targetRouteRecord = isRoute(route) ? route.value : route
+    return this._route.partialUrl !== targetRouteRecord.partialUrl
+  }
+
+  isDistinctByPathFrom (route: Route | RouteRecord): boolean {
+    const targetRouteRecord = isRoute(route) ? route.value : route
+    return this._route.pathStr !== targetRouteRecord.pathStr
+  }
+
+  isDistinctBySearchFrom (route: Route | RouteRecord): boolean {
+    const targetRouteRecord = isRoute(route) ? route.value : route
+    return this._route.search !== targetRouteRecord.search
+  }
+
+  isDistinctByQueryFrom (route: Route | RouteRecord): boolean {
+    const targetRouteRecord = isRoute(route) ? route.value : route
+    return this._route.queryStr !== targetRouteRecord.queryStr
+  }
+
+  isDistinctByHashFrom (route: Route | RouteRecord): boolean {
+    const targetRouteRecord = isRoute(route) ? route.value : route
+    return this._route.hashStr !== targetRouteRecord.hashStr
+  }
+
+  static pathIncludes (route: Route | RouteRecord, path: string | string[]): boolean {
+    const routeRecord = isRoute(route) ? route.value : route
+    const pieces = isString(path) ? pathnameToArray(path) : path
+    return pieces.every(piece => routeRecord.pathArr.includes(piece))
+  }
+
+  isPathIncludes (path: string | string[]): boolean {
+    const pieces = isString(path) ? pathnameToArray(path) : path
+    return pieces.every(piece => this._route.pathArr.includes(piece))
+  }
 }
