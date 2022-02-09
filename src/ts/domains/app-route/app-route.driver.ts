@@ -6,9 +6,11 @@ import {
   createArrayMSTache,
   createGeneralDriver, useGeneralDriver_
 } from '../../libs/mobius-utils'
+import { Route } from './app-route__route.model'
 import { AppRouteManager } from './app-route__app-route-manager.model'
 
 import type {
+  UndefinedableByKeys,
   AtomLikeOfOutput,
   ReplayDataMediator,
   DriverOptions, DriverLevelContexts, DriverSingletonLevelContexts, DriverInstance
@@ -21,7 +23,7 @@ import type {
   AppRouteManagerDirectives, AppRouteManagerHistoryItem, AppRouteManagerHistory, AppRouteManagerStack, AppRouteManagerRoamingState
 } from './app-route__app-route-manager.model'
 import type {
-  Route, RouteRecord
+  RouteRecord
 } from './app-route__route.model'
 
 export interface AppRouteDriverOptions extends DriverOptions, AppRouteManagerOptions { }
@@ -206,21 +208,63 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
  */
 export const useAppRouteDriver = useGeneralDriver_(makeAppRouteDriver)
 
-export interface RouteRecordProcessOptions {
+interface RouteProcessOptionsCommonPresets {
+  /**
+   * [filter] whether the route should be emitted or not when current route is same as the previous.
+   *
+   * @default true
+   */
   isDistinct?: boolean
-  level?: number
-  defaultTo?: string
+  /**
+   * [filter] When `pathMatches` is given, the route will be emitted only when the route path matches the given conditions.
+   *
+   * @default undefined
+   */
+  pathMatches?: string | string[]
+  /**
+   * [mapper] When specified, the route will emit the path part in given index of the route's pathArr
+   * instead of `AppRouetManagerHistoryItem`.
+   *
+   * @default undefined
+   */
+  pathIndex?: number
+  /**
+   * [mapper] When specified, the result will replace with given value if it is `undefined`.
+   *
+   * @default undefined
+   */
+  defaultTo?: any
 }
-export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS: RouteRecordProcessOptions = {
+const DEFAULT_ROUTE_PROCESS_OPTIONS_COMMON_PRESETS = {
   isDistinct: true,
-  level: undefined,
+  pathMatches: undefined,
+  pathIndex: undefined,
   defaultTo: undefined
+}
+
+export interface RouteRecordProcessOptions {
+  presets?: RouteProcessOptionsCommonPresets
+  filter?: (routeRecord: RouteRecord) => boolean
+  mapper?: (routeRecord: RouteRecord) => any
+  reducer?: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any
+}
+export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS: UndefinedableByKeys<Required<RouteRecordProcessOptions>, 'presets'> = {
+  presets: undefined,
+  filter: () => true,
+  mapper: routeRecord => routeRecord,
+  reducer: (previousValue, currentValue, currentIndex, array) => currentValue
+}
+/**
+ * @see {@link RouteRecordProcessOptions}
+ */
+export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS_PRESETS = {
+  ...DEFAULT_ROUTE_PROCESS_OPTIONS_COMMON_PRESETS
 }
 
 /**
  *
  */
-const routeRecordProcessT = createArrayMSTache<[RouteRecordProcessOptions, RouteRecord], string, true, 'partly', 'left'>({
+const routeRecordProcessT = createArrayMSTache<[RouteRecordProcessOptions, RouteRecord], any, true, 'partly', 'left'>({
   acceptNonAtom: true,
   customizeType: 'partly',
   options: { lift: { position: 'left' } },
@@ -230,7 +274,9 @@ const routeRecordProcessT = createArrayMSTache<[RouteRecordProcessOptions, Route
     if (isVacuo(prev)) return TERMINATOR
     if (isVacuo(prev.value)) return TERMINATOR
 
-    const { states, values } = contexts
+    const {
+      states, values, previousRouteRecord, list = [], reduced
+    } = contexts as (typeof contexts & { previousRouteRecord: RouteRecord | undefined, list: any[], reduced: any })
     const { key } = prev
 
     if (!states[0] || !states[1]) {
@@ -240,35 +286,44 @@ const routeRecordProcessT = createArrayMSTache<[RouteRecordProcessOptions, Route
       return TERMINATOR
     }
     if (key === 1) {
-      const {
-        isDistinct, level, defaultTo
-      } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS, ...values[0]! }
-      const route = values[1]!
+      const { presets, filter, mapper, reducer } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS, ...values[0]! }
 
-      let preparedRoute: string | undefined
-
-      if (level !== undefined) {
-        preparedRoute = route.pathArr[level]
-      }
-
-      if (preparedRoute === undefined) {
-        if (defaultTo !== undefined) {
-          preparedRoute = defaultTo
-        } else {
-          console.error('Route is undefined.')
-          return TERMINATOR
+      let preparedFilter
+      if (presets !== undefined) {
+        const { isDistinct, pathMatches } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS_PRESETS, ...presets }
+        preparedFilter = (routeRecord: RouteRecord) => {
+          const distinctResult = (isDistinct && (previousRouteRecord !== undefined))
+            ? Route.distinctByPartialUrl(routeRecord, previousRouteRecord)
+            : true
+          const pathMatchesResult = pathMatches === undefined ? true : Route.pathIncludes(routeRecord, pathMatches)
+          return distinctResult && pathMatchesResult
         }
+      } else {
+        preparedFilter = filter
       }
+      const filterResult = preparedFilter(values[1]!)
+      if (!filterResult) {
+        return TERMINATOR
+      }
+      contexts.previousRouteRecord = values[1]!
 
-      if (isDistinct === true) {
-        if (preparedRoute === contexts.prev) {
-          return TERMINATOR
-        } else {
-          contexts.prev = preparedRoute
+      let preparedMapper
+      if (presets !== undefined) {
+        const { pathIndex, defaultTo } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS_PRESETS, ...presets }
+        preparedMapper = (routeRecord: RouteRecord) => {
+          const pathIndexResult = pathIndex === undefined ? routeRecord : routeRecord.pathArr[pathIndex]
+          const defaultToResult = defaultTo === undefined ? pathIndexResult : (pathIndexResult === undefined ? defaultTo : pathIndexResult)
+          return defaultToResult
         }
+      } else {
+        preparedMapper = mapper
       }
+      const mapperResult = preparedMapper(values[1]!)
 
-      return preparedRoute
+      list.push(mapperResult)
+
+      const reducerResult = reducer(reduced, list[list.length - 1], list.length - 1, list)
+      return reducerResult
     }
 
     throw (new TypeError('Unexpected key!'))
@@ -279,10 +334,10 @@ interface IRouteRecordProcessT_ {
   (
     options: RouteRecordProcessOptions | AtomLikeOfOutput<RouteRecordProcessOptions>,
     routeRecord: RouteRecord | AtomLikeOfOutput<RouteRecord>
-  ): string
+  ): any
   (
     options: RouteRecordProcessOptions | AtomLikeOfOutput<RouteRecordProcessOptions>
-  ): (routeRecord: RouteRecord | AtomLikeOfOutput<RouteRecord>) => string
+  ): (routeRecord: RouteRecord | AtomLikeOfOutput<RouteRecord>) => any
 }
 /**
  * @see {@link routeRecordProcessT}
@@ -290,12 +345,22 @@ interface IRouteRecordProcessT_ {
 const routeRecordProcessT_: IRouteRecordProcessT_ = looseCurryN(2, routeRecordProcessT)
 
 export interface HistoryItemProcessOptions {
+  presets?: RouteProcessOptionsCommonPresets
   filter?: (historyItem: AppRouteManagerHistoryItem) => boolean
   mapper?: (historyItem: AppRouteManagerHistoryItem) => any
+  reducer?: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any
 }
-export const DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS: Required<HistoryItemProcessOptions> = {
+export const DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS: UndefinedableByKeys<Required<HistoryItemProcessOptions>, 'presets'> = {
+  presets: undefined,
   filter: () => true,
-  mapper: historyItem => historyItem
+  mapper: historyItem => historyItem,
+  reducer: (previousValue, currentValue, currentIndex, array) => currentValue
+}
+/**
+ * @see {@link HistoryItemProcessOptions}
+ */
+export const DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS_PRESETS = {
+  ...DEFAULT_ROUTE_PROCESS_OPTIONS_COMMON_PRESETS
 }
 
 /**
@@ -310,7 +375,9 @@ const historyItemProcessT = createArrayMSTache<[HistoryItemProcessOptions, AppRo
     if (isVacuo(prev)) return TERMINATOR
     if (isVacuo(prev.value)) return TERMINATOR
 
-    const { states, values } = contexts
+    const {
+      states, values, list = [], reduced
+    } = contexts as (typeof contexts & { list: any[], reduced: any })
     const { key } = prev
     if (!states[0] || !states[1]) {
       return TERMINATOR
@@ -319,15 +386,43 @@ const historyItemProcessT = createArrayMSTache<[HistoryItemProcessOptions, AppRo
       return TERMINATOR
     }
     if (key === 1) {
-      const { filter, mapper } = { ...DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS, ...values[0]! }
+      const { presets, filter, mapper, reducer } = { ...DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS, ...values[0]! }
 
-      const filterResult = filter(values[1]!)
+      let preparedFilter
+      if (presets !== undefined) {
+        const { isDistinct, pathMatches } = { ...DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS_PRESETS, ...presets }
+        preparedFilter = (historyItem: AppRouteManagerHistoryItem) => {
+          const { fromRoute, toRoute } = historyItem
+          const distinctResult = isDistinct ? toRoute.isDistinctByPartialUrlFrom(fromRoute) : true
+          const pathMatchesResult = pathMatches === undefined ? true : toRoute.isPathIncludes(pathMatches)
+          return distinctResult && pathMatchesResult
+        }
+      } else {
+        preparedFilter = filter
+      }
+      const filterResult = preparedFilter(values[1]!)
       if (!filterResult) {
         return TERMINATOR
       }
 
-      const mapperResult = mapper(values[1]!)
-      return mapperResult
+      let preparedMapper
+      if (presets !== undefined) {
+        const { pathIndex, defaultTo } = { ...DEFAULT_HISTORY_ITEM_PROCESS_OPTIONS_PRESETS, ...presets }
+        preparedMapper = (historyItem: AppRouteManagerHistoryItem) => {
+          const { toRoute } = historyItem
+          const pathIndexResult = pathIndex === undefined ? historyItem : toRoute.value.pathArr[pathIndex]
+          const defaultToResult = defaultTo === undefined ? pathIndexResult : (pathIndexResult === undefined ? defaultTo : pathIndexResult)
+          return defaultToResult
+        }
+      } else {
+        preparedMapper = mapper
+      }
+      const mapperResult = preparedMapper(values[1]!)
+
+      list.push(mapperResult)
+
+      const reducerResult = reducer(reduced, list[list.length - 1], list.length - 1, list)
+      return reducerResult
     }
 
     throw (new TypeError('Unexpected key!'))
