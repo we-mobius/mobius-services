@@ -18,19 +18,19 @@ export interface DeviceDriverOptions extends DriverOptions {
 }
 export interface DeviceDriverSingletonLevelContexts extends DriverSingletonLevelContexts {
   inputs: {
-    options: Data<DeviceDriverOptions>
+    options: Data<Required<DeviceDriverOptions>>
   }
   outputs: {
-    options: ReplayDataMediator<DeviceDriverOptions>
+    options: ReplayDataMediator<Required<DeviceDriverOptions>>
     screenInfo: ReplayDataMediator<DeviceScreenInfo>
   }
 }
 export interface DeviceDriverInstance extends DriverInstance {
   inputs: {
-    options: Data<DeviceDriverOptions>
+    options: Data<Required<DeviceDriverOptions>>
   }
   outputs: {
-    options: ReplayDataMediator<DeviceDriverOptions>
+    options: ReplayDataMediator<Required<DeviceDriverOptions>>
     screenInfo: ReplayDataMediator<DeviceScreenInfo>
   }
 }

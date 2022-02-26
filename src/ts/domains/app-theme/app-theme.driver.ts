@@ -42,10 +42,10 @@ export interface AppThemeDriverOptions extends DriverOptions {
 }
 export interface AppThemeDriverSingletonLevelContexts extends DriverSingletonLevelContexts {
   inputs: {
-    options: Data<AppThemeDriverOptions>
+    options: Data<Required<AppThemeDriverOptions>>
   }
   outputs: {
-    options: ReplayDataMediator<AppThemeDriverOptions>
+    options: ReplayDataMediator<Required<AppThemeDriverOptions>>
     theme: ReplayDataMediator<AppTheme>
     preferredColorScheme: ReplayDataMediator<AppThemePreferredColorScheme>
     preferredLightSource: ReplayDataMediator<AppThemePreferredLightSource>
