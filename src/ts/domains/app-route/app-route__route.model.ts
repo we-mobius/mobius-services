@@ -68,10 +68,11 @@ export const DEFAULT_ROUTE_OPTIONS: Required<RouteOptions> = {
 /**
  *
  */
-export class Route {
+export class Route<Payload = any> {
   _partialUrl: string
   _options: RouteOptions
   _route: RouteRecord
+  _payload: Payload | undefined
 
   /**
    * @param partialUrl same as pathname in Url, e.g. '' or '/' or '/path/to/page' or '/path/to/page?question=answer'.
@@ -83,6 +84,7 @@ export class Route {
     this._partialUrl = partialUrl
     this._options = { ...DEFAULT_ROUTE_OPTIONS, ...options }
     this._route = DEFAULT_ROUTE_RECORD
+    this._payload = undefined as any
 
     // initialize
     const baseRoute = this._options.baseRoute ?? { partialUrl: '/' }
@@ -111,6 +113,11 @@ export class Route {
   static empty (options: RouteOptions = DEFAULT_ROUTE_OPTIONS): Route {
     return new Route(DEFAULT_ROUTE_RECORD.partialUrl, options)
   }
+
+  get payload (): Payload | undefined { return this._payload }
+  set payload (payload: Payload | undefined) { this._payload = payload }
+  getPayload (): Payload | undefined { return this._payload }
+  setPayload (payload: Payload | undefined): this { this._payload = payload; return this }
 
   setUrl (url: URL): this {
     // @refer https://developer.mozilla.org/en-US/docs/Web/API/URL
