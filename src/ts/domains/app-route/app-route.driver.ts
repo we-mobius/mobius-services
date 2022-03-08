@@ -7,6 +7,7 @@ import { Route } from './app-route__route.model'
 import { AppRouteManager } from './app-route__app-route-manager.model'
 import { routeRecordProcessT, routeRecordProcessT_ } from './routeRecordProcess.tache'
 import { historyItemProcessT, historyItemProcessT_ } from './historyItemProcess.tache'
+import { routeProcessT, routeProcessT_ } from './routeProcess.tache'
 
 import type {
   ReplayDataMediator,
@@ -53,6 +54,8 @@ export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLev
     routeRecordProcessT_: typeof routeRecordProcessT_
     historyItemProcessT: typeof historyItemProcessT
     historyItemProcessT_: typeof historyItemProcessT_
+    routeProcessT: typeof routeProcessT
+    routeProcessT_: typeof routeProcessT_
   }
 }
 export interface AppRouteDriverInstance extends DriverInstance {
@@ -190,7 +193,9 @@ createGeneralDriver<AppRouteDriverOptions, DriverLevelContexts, AppRouteDriverSi
         routeRecordProcessT: routeRecordProcessT,
         routeRecordProcessT_: routeRecordProcessT_,
         historyItemProcessT: historyItemProcessT,
-        historyItemProcessT_: historyItemProcessT_
+        historyItemProcessT_: historyItemProcessT_,
+        routeProcessT: routeProcessT,
+        routeProcessT_: routeProcessT_
       }
     }
   },
