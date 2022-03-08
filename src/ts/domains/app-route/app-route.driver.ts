@@ -87,6 +87,8 @@ export interface AppRouteDriverInstance extends DriverInstance {
     routeRecordProcessT_: typeof routeRecordProcessT_
     historyItemProcessT: typeof historyItemProcessT
     historyItemProcessT_: typeof historyItemProcessT_
+    routeProcessT: typeof routeProcessT
+    routeProcessT_: typeof routeProcessT_
   }
 }
 
