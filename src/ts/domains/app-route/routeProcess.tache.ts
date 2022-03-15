@@ -11,7 +11,7 @@ export interface RouteProcessOptions {
   mapper?: (route: Route) => any
   reducer?: (previousValue: any, currentValue: any, currentIndex: number, array: any[]) => any
 }
-export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS: UndefinedableByKeys<Required<RouteProcessOptions>, 'presets'> = {
+export const DEFAULT_ROUTE_PROCESS_OPTIONS: UndefinedableByKeys<Required<RouteProcessOptions>, 'presets'> = {
   presets: undefined,
   filter: () => true,
   mapper: route => route,
@@ -20,7 +20,7 @@ export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS: UndefinedableByKeys<Required<
 /**
  * @see {@link RouteProcessOptions}
  */
-export const DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS_PRESETS = {
+export const DEFAULT_ROUTE_PROCESS_OPTIONS_PRESETS = {
   ...DEFAULT_ROUTE_PROCESS_OPTIONS_COMMON_PRESETS
 }
 
@@ -49,11 +49,11 @@ export const routeProcessT = createArrayMSTache<[RouteProcessOptions, Route], an
       return TERMINATOR
     }
     if (key === 1) {
-      const { presets, filter, mapper, reducer } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS, ...values[0]! }
+      const { presets, filter, mapper, reducer } = { ...DEFAULT_ROUTE_PROCESS_OPTIONS, ...values[0]! }
 
       let preparedFilter
       if (presets !== undefined) {
-        const { isDistinct, pathMatches } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS_PRESETS, ...presets }
+        const { isDistinct, pathMatches } = { ...DEFAULT_ROUTE_PROCESS_OPTIONS_PRESETS, ...presets }
         preparedFilter = (route: Route) => {
           const distinctResult = (isDistinct && (previousRoute !== undefined))
             ? Route.distinctByPartialUrl(route, previousRoute)
@@ -72,7 +72,7 @@ export const routeProcessT = createArrayMSTache<[RouteProcessOptions, Route], an
 
       let preparedMapper
       if (presets !== undefined) {
-        const { pathIndex, defaultTo } = { ...DEFAULT_ROUTE_RECORD_PROCESS_OPTIONS_PRESETS, ...presets }
+        const { pathIndex, defaultTo } = { ...DEFAULT_ROUTE_PROCESS_OPTIONS_PRESETS, ...presets }
         preparedMapper = (route: Route) => {
           const pathIndexResult = pathIndex === undefined ? route : route.value.pathArr[pathIndex]
           const defaultToResult = defaultTo === undefined ? pathIndexResult : (pathIndexResult === undefined ? defaultTo : pathIndexResult)

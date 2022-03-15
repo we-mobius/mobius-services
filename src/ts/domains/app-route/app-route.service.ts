@@ -9,6 +9,7 @@ import type { AppRouteDriverInstance } from './app-route.driver'
 export * from './app-route__route.model'
 export * from './app-route__app-route-manager.model'
 export * from './app-route.driver'
+export * from './app-route.helper'
 
 const _pushState = (data: any, title: string, url: string | URL | undefined | null): void => {
   const currentHref = location.href

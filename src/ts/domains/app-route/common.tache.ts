@@ -2,7 +2,7 @@ export interface RouteProcessOptionsCommonPresets {
   /**
    * [filter] whether the route should be emitted or not when current route is same as the previous.
    *
-   * @default true
+   * @default false
    */
   isDistinct?: boolean
   /**
@@ -26,7 +26,7 @@ export interface RouteProcessOptionsCommonPresets {
   defaultTo?: any
 }
 export const DEFAULT_ROUTE_PROCESS_OPTIONS_COMMON_PRESETS = {
-  isDistinct: true,
+  isDistinct: false,
   pathMatches: undefined,
   pathIndex: undefined,
   defaultTo: undefined

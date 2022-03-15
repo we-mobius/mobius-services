@@ -24,6 +24,10 @@ import type {
   RouteRecord
 } from './app-route__route.model'
 
+export * from './routeRecordProcess.tache'
+export * from './historyItemProcess.tache'
+export * from './routeProcess.tache'
+
 export interface AppRouteDriverOptions extends DriverOptions, AppRouteManagerOptions { }
 export interface AppRouteDriverSingletonLevelContexts extends DriverSingletonLevelContexts {
   inputs: {
