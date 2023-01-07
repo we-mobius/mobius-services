@@ -140,7 +140,7 @@
     "eslint-plugin-standard": "^4.0.1",
     "fork-ts-checker-webpack-plugin": "^6.5.0",
     "handlebars": "^4.7.6",
-    "handlebars-loader": "^1.7.1",
+    "handlebars-loader": "^1.7.3",
     "html-webpack-plugin": "^4.4.1",
     "husky": "^4.3.0",
     "lint-staged": "^10.3.0",
