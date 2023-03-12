@@ -14,7 +14,7 @@
  *   }
  * }
  */
-interface TextMessage {
+export interface TextMessage {
   /**
    * 消息类型
    */
@@ -47,7 +47,7 @@ interface TextMessage {
  *   }
  * }
  */
-interface MarkdownMessage {
+export interface MarkdownMessage {
   /**
    * 消息类型
    */
@@ -71,7 +71,7 @@ interface MarkdownMessage {
  *   }
  * }
  */
-interface ImageMessage {
+export interface ImageMessage {
   /**
    * 消息类型
    */
@@ -104,7 +104,7 @@ interface ImageMessage {
  *   }
  * }
  */
-interface ArticleMessage {
+export interface ArticleMessage {
   /**
    * 消息类型
    */
@@ -143,7 +143,7 @@ interface ArticleMessage {
  *   }
  * }
  */
-interface FileMessage {
+export interface FileMessage {
   /**
    * 消息类型
    */
@@ -157,7 +157,7 @@ interface FileMessage {
   }
 }
 
-interface TextNoticeTemplateCard {
+export interface TextNoticeTemplateCard {
   /**
    * 模版卡片的模版类型，文本通知模版卡片的类型为 `text_notice`
    */
@@ -425,7 +425,7 @@ interface TextNoticeTemplateCard {
     pagepath?: string
   }
 }
-interface NewsNoticeTemplateCard {
+export interface NewsNoticeTemplateCard {
   card_type: 'news_notice'
   /**
    * 卡片来源样式信息，不需要来源样式可不填写
@@ -732,7 +732,7 @@ interface NewsNoticeTemplateCard {
     pagepath?: string
   }
 }
-interface TemplateCardmessage {
+export interface TemplateCardmessage {
   msgtype: 'template_card'
   template_card: TextNoticeTemplateCard | NewsNoticeTemplateCard
 }
