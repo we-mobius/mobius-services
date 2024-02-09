@@ -127,7 +127,7 @@
     "babel-loader": "^8.1.0",
     "chalk": "^5.0.0",
     "clean-webpack-plugin": "^3.0.0",
-    "commitizen": "^4.2.1",
+    "commitizen": "^4.3.0",
     "commitlint-config-cz": "^0.13.2",
     "copy-webpack-plugin": "10.2",
     "cz-customizable": "^6.3.0",
